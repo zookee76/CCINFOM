@@ -1,0 +1,273 @@
+CREATE DATABASE IF NOT EXISTS `hoa_db`;
+USE `hoa_db`;
+
+CREATE TABLE regions 
+(
+	region VARCHAR(45) PRIMARY KEY NOT NULL
+);
+
+CREATE TABLE individual
+(
+    individual_id INT PRIMARY KEY NOT NULL,
+    indiv_lastname VARCHAR(45) NOT NULL,
+    indiv_firstname VARCHAR(45) NOT NULL,
+    indiv_mi VARCHAR(45) NOT NULL,
+    email VARCHAR(45) NOT NULL,
+    birthday DATE NOT NULL,
+    gender ENUM('M', 'F') NOT NULL,
+    fb_url VARCHAR(45) NULL,
+    picture BLOB NOT NULL,
+    indiv_type ENUM('R', 'H') NOT NULL,
+    UNIQUE INDEX `ind_indiv_email` (email),
+    UNIQUE INDEX `ind_indiv_fb_url` (fb_url)
+);
+
+CREATE TABLE officer_positions
+(
+	`position` VARCHAR(25) PRIMARY KEY NOT NULL
+);
+
+CREATE TABLE elections
+(
+    elec_date DATE PRIMARY KEY NOT NULL,
+    venue VARCHAR(45) NOT NULL,
+    quorum BOOLEAN NOT NULL,
+    witness_lastname VARCHAR(45) NOT NULL,
+    witness_firstname VARCHAR(45) NOT NULL,
+    witness_mi VARCHAR(45) NOT NULL,
+    witness_mobile INT(10) NOT NULL
+);
+
+CREATE TABLE household
+(
+    household_id INT(5) PRIMARY KEY NOT NULL
+);
+
+CREATE TABLE receipt
+(
+    or_no INT PRIMARY KEY NOT NULL,
+    transact_date DATETIME NOT NULL,
+    total_amount FLOAT NOT NULL
+);
+
+CREATE TABLE provinces 
+(
+    province_name VARCHAR(45) PRIMARY KEY NOT NULL,
+    region VARCHAR(45) NOT NULL,
+    INDEX `ind_region` (region),
+    CONSTRAINT `fk_region`
+    FOREIGN KEY (region)
+    REFERENCES hoa_db.regions (region)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE cities
+(
+    city VARCHAR(45) PRIMARY KEY NOT NULL,
+    province VARCHAR(45) NOT NULL,
+    INDEX `ind_province` (province),
+    CONSTRAINT `fk_province`
+    FOREIGN KEY (province)
+    REFERENCES hoa_db.provinces (province_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE zipcodes
+(
+    zipcode INT PRIMARY KEY NOT NULL,
+    province VARCHAR(45) NOT NULL,
+    brgy VARCHAR(45) NOT NULL,
+    city VARCHAR(45) NOT NULL,
+    INDEX `ind_zip_city` (city),
+    INDEX `ind_zip_province` (province),
+    CONSTRAINT `fk_zip_city`
+    FOREIGN KEY (city)
+    REFERENCES hoa_db.cities (city)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_zip_province`
+    FOREIGN KEY (province)
+    REFERENCES hoa_db.provinces (province_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+
+CREATE TABLE address
+(
+    address_id INT PRIMARY KEY NOT NULL,
+    stno VARCHAR(45) NOT NULL,
+    stname VARCHAR(45) NOT NULL,
+    brgy VARCHAR(45) NOT NULL,
+    city VARCHAR(45) NOT NULL,
+    province VARCHAR(45) NOT NULL,
+    zipcode INT NOT NULL,
+    x_coord FLOAT NOT NULL,
+    y_coord FLOAT NOT NULL,
+    INDEX `ind_address_city` (city),
+    INDEX `ind_address_province` (province),
+    CONSTRAINT `fk_address_city`
+    FOREIGN KEY (city)
+    REFERENCES hoa_db.cities (city)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_address_province`
+    FOREIGN KEY (province)
+    REFERENCES hoa_db.provinces (province_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_address_zipcode` 
+    FOREIGN KEY (zipcode)
+    REFERENCES hoa_db.zipcodes (zipcode)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE hoa 
+(
+    hoa_name VARCHAR(45) PRIMARY KEY NOT NULL, 
+    office_add INT NOT NULL,
+    year_est INT NOT NULL, 
+    website VARCHAR(45) NOT NULL, 
+    subd_name VARCHAR(45) NOT NULL, 
+    dues_collection VARCHAR(45) NOT NULL,
+    UNIQUE INDEX `ind_hoa_subd_name` (subd_name),
+    INDEX `ind_hoa_office_add` (office_add),
+    CONSTRAINT `fk_hoa_office_add`
+    FOREIGN KEY (office_add)
+    REFERENCES hoa_db.address (address_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE homeowner
+(
+    homeowner_id INT(5) PRIMARY KEY NOT NULL,
+    homeowner_name VARCHAR(45) NOT NULL,
+    years_ho INT(2) NOT NULL,
+    undertaking BOOLEAN NOT NULL,
+    membership BOOLEAN NOT NULL,
+    is_resident BOOLEAN NOT NULL,
+    current_add INT NOT NULL,
+    other_add INT NULL,
+    other_email VARCHAR(45) NULL,
+    hoa_name VARCHAR(45) NOT NULL,
+    individual_id INT NOT NULL,
+    INDEX `ind_homeowner_hoa_name` (hoa_name),
+    INDEX `ind_homeowner_curr_add` (current_add),
+    INDEX `ind_homeowner_other_add` (other_add),
+    INDEX `ind_homeowner_indiv_id` (individual_id),
+    CONSTRAINT `fk_homeowner_hoa_name`
+    FOREIGN KEY (hoa_name)
+    REFERENCES hoa_db.hoa (hoa_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_homeowner_curr_add`
+    FOREIGN KEY (current_add)
+    REFERENCES hoa_db.address (address_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_homeowner_other_add`
+    FOREIGN KEY (other_add)
+    REFERENCES hoa_db.address (address_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_homeowner_indiv_id`
+    FOREIGN KEY (individual_id)
+    REFERENCES hoa_db.individual (individual_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE hoa_officer
+(
+    officer_id INT(5) PRIMARY KEY NOT NULL,
+    homeowner_id INT(5) NOT NULL,
+    `position` VARCHAR(25) NOT NULL,
+    office_start DATE NOT NULL,
+    office_end DATE NOT NULL,
+    elec_date DATE NOT NULL,
+    INDEX `ind_hoaofficer_homeowner_id` (homeowner_id),
+    INDEX `ind_hoaofficer_position` (`position`),
+    INDEX `ind_hoaofficer_elec_date` (elec_date),
+    CONSTRAINT `fk_hoaofficer_homeowner_id`
+    FOREIGN KEY (homeowner_id)
+    REFERENCES hoa_db.homeowner (homeowner_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_hoaofficer_position`
+    FOREIGN KEY (`position`)
+    REFERENCES hoa_db.officer_positions (`position`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_hoaofficer_elec_date`
+    FOREIGN KEY (elec_date)
+    REFERENCES hoa_db.elections (elec_date)
+    ON DELETE NO ACTION
+	ON UPDATE NO ACTION
+);
+
+CREATE TABLE hoa_files
+(
+    file_id INT PRIMARY KEY NOT NULL,
+    file_name VARCHAR(45) NOT NULL,
+    description VARCHAR(45) NOT NULL,
+    location VARCHAR(45) NOT NULL,
+    type ENUM('document', 'spreadsheet', 'pdf', 'image', 'others') NOT NULL,
+    date_submitted DATETIME NOT NULL,
+    `owner` VARCHAR(45) NOT NULL,
+    uploader INT(5) NOT NULL,
+    hoa_name VARCHAR(45) NOT NULL,
+    INDEX `ind_hoa_files_hoa_name` (hoa_name),
+    INDEX `ind_hoa_files_uploader` (uploader),
+    CONSTRAINT `fk_hoa_files_hoa_name`
+    FOREIGN KEY (hoa_name)
+    REFERENCES hoa_db.hoa (hoa_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_hoa_files_uploader`
+    FOREIGN KEY (uploader)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE property
+(
+    property_code VARCHAR(6) PRIMARY KEY NOT NULL,
+    size DECIMAL NOT NULL,
+    turnover DATE NOT NULL,
+    `type` ENUM ('R', 'C') NOT NULL,
+    homeowner_id INT(5) NOT NULL,
+    INDEX `ind_property_homeowner_id` (homeowner_id),
+    CONSTRAINT `fk_property_homeowner_id`
+    FOREIGN KEY (homeowner_id)
+    REFERENCES hoa_db.homeowner (homeowner_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE resident
+(
+    resident_id INT(5) PRIMARY KEY NOT NULL,
+    is_renter TINYINT(1) NOT NULL,
+    relation_ho VARCHAR(45) NOT NULL,
+    undertaking BOOLEAN NOT NULL,
+    household_id INT(5) NOT NULL,
+    authorized_resident TINYINT(1) NOT NULL,
+    individual_id INT NOT NULL,
+    INDEX `ind_resident_household_id` (household_id),
+    INDEX `ind_resident_individual_id` (individual_id),
+    CONSTRAINT `fk_resident_household_id`
+    FOREIGN KEY (household_id)
+    REFERENCES hoa_db.household (household_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_resident_individual_id`
+    FOREIGN KEY (individual_id)
+    REFERENCES hoa_db.individual (individual_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
