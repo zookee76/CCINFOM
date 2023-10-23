@@ -212,7 +212,7 @@ CREATE TABLE hoa_officer
 CREATE TABLE hoa_files
 (
     file_id INT PRIMARY KEY NOT NULL,
-    file_name VARCHAR(45) NOT NULL,
+    file_name VARCHAR(45) UNIQUE NOT NULL,
     description VARCHAR(45) NOT NULL,
     location VARCHAR(45) NOT NULL,
     type ENUM('document', 'spreadsheet', 'pdf', 'image', 'others') NOT NULL,
@@ -270,4 +270,338 @@ CREATE TABLE resident
     REFERENCES hoa_db.individual (individual_id)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+);
+
+CREATE TABLE resident_idcard
+(
+	resident_idcardno VARCHAR(10) PRIMARY KEY NOT NULL,
+    date_requested DATETIME NOT NULL,
+    request_reason VARCHAR(45) NOT NULL,
+    date_issued DATETIME NOT NULL,
+    authorizing_officer VARCHAR(45) NOT NULL,
+    or_no INT NOT NULL,
+    amount_paid FLOAT NOT NULL,
+    `status` ENUM('Active', 'Inactive', 'Lost') NOT NULL,
+    resident_id INT(5) NOT NULL,
+    INDEX `ind_resident_idcard_resident_id` (resident_id),
+    INDEX `ind_resident_idcard_receipt` (or_no),
+    CONSTRAINT `fk_resident_idcard_resident_id`
+    FOREIGN KEY (resident_id)
+    REFERENCES hoa_db.resident (resident_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_resident_idcard_receipt`
+    FOREIGN KEY (or_no)
+    REFERENCES hoa_db.receipt (or_no)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE mobile
+(
+	mobile_no INT(10) PRIMARY KEY NOT NULL,
+    individual_id INT NOT NULL,
+    INDEX `ind_mobile_individual_id` (individual_id),
+    CONSTRAINT `fk_mobile_individual_id`
+    FOREIGN KEY (individual_id)
+    REFERENCES hoa_db.individual (individual_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE vehicle
+(
+	plate_no VARCHAR(7) PRIMARY KEY NOT NULL,
+    owner_lastname VARCHAR(45) NOT NULL,
+    owner_firstname VARCHAR(45) NOT NULL,
+    owner_mi VARCHAR(45) NOT NULL,
+    resident_id INT(5) NULL,
+    vehicle_class ENUM('P', 'C') NOT NULL,
+    vehicle_type ENUM('sedan', 'SUV', 'MPV/AUV', 'van', 'truck', 'motorcycle/scooter', 'others') NOT NULL,
+    date_registered DATETIME NOT NULL,
+    reg_fee DECIMAL NOT NULL,
+    or_no INT NOT NULL,
+    INDEX `ind_vehicle_resident_id` (resident_id),
+    INDEX `ind_vehicle_or_no` (or_no),
+    CONSTRAINT `fk_vehicle_resident_id`
+    FOREIGN KEY (resident_id)
+    REFERENCES hoa_db.resident (resident_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_vehicle_or_no`
+    FOREIGN KEY (or_no)
+    REFERENCES hoa_db.receipt (or_no)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE orcr
+(
+	orcr VARCHAR(45) PRIMARY KEY NOT NULL,
+    plate_no VARCHAR(7) NOT NULL,
+    years_valid VARCHAR(45) NOT NULL,
+    orcr_file VARCHAR(45) NOT NULL,
+    INDEX `ind_orcr_plate_no` (plate_no),
+    INDEX `ind_orcr_orcr_file` (orcr_file),
+    CONSTRAINT `fk_orcr_plate_no`
+    FOREIGN KEY (plate_no)
+    REFERENCES hoa_db.vehicle (plate_no)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_orcr_orcr_file`
+    FOREIGN KEY (orcr_file)
+    REFERENCES hoa_db.hoa_files (file_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE sticker
+(
+	sticker_id INT PRIMARY KEY NOT NULL,
+    year_valid INT(4) NOT NULL,
+    plate_no VARCHAR(7) NOT NULL,
+    owner_type ENUM('R', 'NR') NOT NULL,
+    authorizing_officer INT(5) NOT NULL,
+    date_acquired DATETIME NOT NULL,
+    or_no INT NOT NULL,
+    INDEX `ind_sticker_plate_no` (plate_no),
+    INDEX `ind_sticker_authorizing_officer` (authorizing_officer),
+    INDEX `ind_sticker_or_no` (or_no),
+    CONSTRAINT `fk_sticker_plate_no`
+    FOREIGN KEY (plate_no)
+    REFERENCES hoa_db.vehicle (plate_no)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_sticker_authorizing_officer`
+    FOREIGN KEY (authorizing_officer)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_sticker_receipt`
+    FOREIGN KEY (or_no)
+    REFERENCES hoa_db.receipt (or_no)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE hoaofficer_sched
+(
+	officer_id INT(5) NOT NULL,
+    sched_time ENUM('AM', 'PM') NOT NULL,
+    avail_Mon BOOLEAN NULL,
+    avail_Tue BOOLEAN NULL,
+    avail_Wed BOOLEAN NULL,
+    avail_Thu BOOLEAN NULL,
+    avail_Fri BOOLEAN NULL,
+    avail_Sat BOOLEAN NULL,
+    avail_Sun BOOLEAN NULL,
+    PRIMARY KEY (`officer_id`, `sched_time`),
+    INDEX `ind_hoaofficer_sched_officer_id` (officer_id),
+    CONSTRAINT `fk_hoaofficer_sched_officer_id`
+    FOREIGN KEY (officer_id)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE asset
+(
+	asset_id VARCHAR(10) PRIMARY KEY NOT NULL,
+    asset_name VARCHAR(45) NOT NULL,
+    description VARCHAR(45) NOT NULL,
+    date_acquired DATE NOT NULL,
+    for_rent BOOLEAN NOT NULL,
+    `value` FLOAT NOT NULL,
+    asset_type ENUM('P', 'E', 'F', 'O') NOT NULL,
+    asset_status ENUM('W', 'DE', 'FR', 'FD', 'DI') NOT NULL,
+    location VARCHAR(45) NOT NULL,
+    location_x FLOAT NOT NULL,
+    location_y FLOAT NOT NULL,
+    hoa_name VARCHAR(45) NOT NULL,
+    asset_container VARCHAR(10) NULL,
+    INDEX `ind_asset_hoa_name` (hoa_name),
+    INDEX `ind_asset_asset_container` (asset_container),
+    CONSTRAINT `fk_asset_hoa_name`
+    FOREIGN KEY (hoa_name)
+    REFERENCES hoa_db.hoa (hoa_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_asset_asset_container`
+    FOREIGN KEY (asset_container)
+    REFERENCES hoa_db.asset (asset_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE commercial_prop
+(
+	property_code VARCHAR(6) PRIMARY KEY NOT NULL,
+    commercial_type ENUM('O', 'L', 'R', 'M') NOT NULL,
+    commercial_maxten INT NOT NULL,
+    INDEX `ind_commercial_prop_property_code` (property_code),
+    CONSTRAINT `fk_commercial_prop_property_code`
+    FOREIGN KEY (property_code)
+    REFERENCES hoa_db.property (property_code)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE residential_prop
+(
+	property_code VARCHAR(6) PRIMARY KEY NOT NULL,
+    household_id INT(5) NOT NULL,
+    INDEX `ind_residential_prop_property_code` (property_code),
+    INDEX `ind_residential_prop_household_id` (household_id),
+    CONSTRAINT `fk_residential_prop_property_code`
+    FOREIGN KEY (property_code)
+    REFERENCES hoa_db.property (property_code)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_residential_prop_household_id`
+    FOREIGN KEY (household_id)
+    REFERENCES hoa_db.household (household_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE AssetActivity
+(
+	AssetActivityID INT(8) PRIMARY KEY NOT NULL,
+    asset_id VARCHAR(10) NOT NULL,
+    Activity_Description VARCHAR(45) NOT NULL,
+    Activity_Date DATE NOT NULL,
+    incharge_firstname VARCHAR(45) NOT NULL,
+    incharge_lastname VARCHAR(45) NOT NULL,
+    incharge_mi VARCHAR(3) NOT NULL,
+    mobile_no INT(10) NOT NULL,
+    activitylocation_x FLOAT NOT NULL,
+    activitylocation_y FLOAT NOT NULL,
+    or_no INT NOT NULL,
+    `Status` ENUM('scheduled', 'ongoing', 'completed', 'deleted') NOT NULL,
+    tentative_start DATETIME NOT NULL,
+    tentative_end DATETIME NOT NULL,
+    actual_start DATETIME NOT NULL,
+    actual_end DATETIME NOT NULL,
+    officer_id INT(5) NOT NULL,
+    approved BOOLEAN NOT NULL,
+    INDEX `ind_AssetActivity_asset_id` (asset_id),
+    INDEX `ind_AssetActivity_mobile_no` (mobile_no),
+    INDEX `ind_AssetActivity_or_no` (or_no),
+    INDEX `ind_AssetActivity_officer_id` (officer_id),
+    CONSTRAINT `fk_AssetActivity_asset_id`
+    FOREIGN KEY (asset_id)
+    REFERENCES hoa_db.asset (asset_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_AssetActivity_receiptID`
+    FOREIGN KEY (or_no)
+    REFERENCES hoa_db.receipt (or_no)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_AssetActivity_mobile_no`
+    FOREIGN KEY (mobile_no)
+    REFERENCES hoa_db.mobile (mobile_no)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_AssetActivity_officer_id`
+    FOREIGN KEY (officer_id)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE BusinessPermit
+(
+	BusinessPermitID INT PRIMARY KEY NOT NULL,
+    Expiration_Date DATE NOT NULL,
+    Processing_Officer INT(5) NOT NULL,
+    Permit_Filename VARCHAR(45) NOT NULL,
+    INDEX `ind_BusinessPermit_processing_officer` (Processing_Officer),
+    INDEX `ind_BusinessPermit_permit_filename` (Permit_Filename),
+    CONSTRAINT `fk_BusinessPermit_processing_officer`
+    FOREIGN KEY (Processing_Officer)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_BusinessPermit_permit_filename`
+    FOREIGN KEY (Permit_Filename)
+    REFERENCES hoa_db.hoa_files (file_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE Business
+(
+    Business_Name VARCHAR(45) PRIMARY KEY NOT NULL,
+    BusinessOwner_Name VARCHAR(45) NOT NULL,
+    Residentship BOOLEAN NOT NULL,
+    Business_Address INT NOT NULL,
+    Business_Email VARCHAR(45) NOT NULL,
+    Business_Description VARCHAR(45) NOT NULL,
+    Business_Type ENUM('Sole Proprietorship', 'Partnership', 'Corporation') NOT NULL,
+	Business_StartDATE DATE NOT NULL,
+    Business_EndDATE DATE NOT NULL,
+    Business_FacebookURL VARCHAR(45) NOT NULL,
+    BusinessPermitID INT NOT NULL,
+    INDEX `ind_Business_Address` (Business_Address),
+    INDEX `ind_Business_Business_Permit_ID` (BusinessPermitID),
+    CONSTRAINT `fk_Business_Address`
+    FOREIGN KEY (Business_Address)
+    REFERENCES hoa_db.address (address_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_Business_Business_Permit_ID` 
+    FOREIGN KEY (BusinessPermitID)
+    REFERENCES hoa_db.BusinessPermit (BusinessPermitID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE BusinessEmployees
+(
+	EmployeeID INT PRIMARY KEY NOT NULL,
+    Business_Name VARCHAR(45) NOT NULL,
+    Employee_LastName VARCHAR(45) NOT NULL,
+    Employee_FirstName VARCHAR(45) NOT NULL,
+    `Employee_MobileNo.` INT(10) NOT NULL,
+    Employee_Position VARCHAR(45) NOT NULL,
+    Authorized_Employee BOOLEAN NOT NULL,
+    INDEX `ind_BusinessEmployees_mobile_no` (`Employee_MobileNo.`),
+    INDEX `ind_BusinessEmployees_Business_Name` (Business_Name),
+    CONSTRAINT `fk_BusinessEmployees_mobile_no`
+    FOREIGN KEY (`Employee_MobileNo.`)
+    REFERENCES hoa_db.mobile (mobile_no)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_BusinessEmployees_Business_Name`
+    FOREIGN KEY (Business_Name)
+    REFERENCES hoa_db.Business (Business_Name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE business_schedule
+(
+	business_sched_time ENUM('AM', 'PM') PRIMARY KEY NOT NULL,
+    Business_Name VARCHAR(45) NOT NULL,
+    open_Mon BOOLEAN NOT NULL,
+    open_Tue BOOLEAN NOT NULL,
+    open_Wed BOOLEAN NOT NULL,
+    open_Thu BOOLEAN NOT NULL,
+    open_Fri BOOLEAN NOT NULL,
+    open_Sat BOOLEAN NOT NULL,
+    open_Sun BOOLEAN NOT NULL,
+    INDEX `ind_business_schedule_business_name` (Business_Name),
+    CONSTRAINT `fk_business_schedule_business_name`
+    FOREIGN KEY (Business_Name)
+    REFERENCES hoa_db.Business (Business_Name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE Incident
+(
+	IncidentID INT PRIMARY KEY NOT NULL,
+    Incident_Date DATE NOT NULL,
+    Incident_Description VARCHAR(45) NOT NULL,
 );
