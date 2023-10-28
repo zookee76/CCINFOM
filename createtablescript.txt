@@ -50,6 +50,12 @@ CREATE TABLE receipt
     total_amount FLOAT NOT NULL
 );
 
+CREATE TABLE Rules
+(
+	RuleNumber INT PRIMARY KEY NOT NULL,
+    RuleDescription VARCHAR(1000) NOT NULL
+);
+
 CREATE TABLE provinces 
 (
     province_name VARCHAR(45) PRIMARY KEY NOT NULL,
@@ -483,11 +489,13 @@ CREATE TABLE AssetActivity
     actual_start DATETIME NOT NULL,
     actual_end DATETIME NOT NULL,
     officer_id INT(5) NOT NULL,
+    hoa_president INT(5) NOT NULL,
     approved BOOLEAN NOT NULL,
     INDEX `ind_AssetActivity_asset_id` (asset_id),
     INDEX `ind_AssetActivity_mobile_no` (mobile_no),
     INDEX `ind_AssetActivity_or_no` (or_no),
     INDEX `ind_AssetActivity_officer_id` (officer_id),
+    INDEX `ind_AssetActivity_hoa_president` (hoa_president),
     CONSTRAINT `fk_AssetActivity_asset_id`
     FOREIGN KEY (asset_id)
     REFERENCES hoa_db.asset (asset_id)
@@ -505,6 +513,11 @@ CREATE TABLE AssetActivity
     ON UPDATE NO ACTION,
     CONSTRAINT `fk_AssetActivity_officer_id`
     FOREIGN KEY (officer_id)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_AssetActivity_hoa_president`
+    FOREIGN KEY (hoa_president)
     REFERENCES hoa_db.hoa_officer (officer_id)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -582,7 +595,7 @@ CREATE TABLE BusinessEmployees
 
 CREATE TABLE business_schedule
 (
-	business_sched_time ENUM('AM', 'PM') PRIMARY KEY NOT NULL,
+	business_sched_time ENUM('AM', 'PM') NOT NULL,
     Business_Name VARCHAR(45) NOT NULL,
     open_Mon BOOLEAN NOT NULL,
     open_Tue BOOLEAN NOT NULL,
@@ -591,6 +604,7 @@ CREATE TABLE business_schedule
     open_Fri BOOLEAN NOT NULL,
     open_Sat BOOLEAN NOT NULL,
     open_Sun BOOLEAN NOT NULL,
+    PRIMARY KEY (business_sched_time, Business_Name),
     INDEX `ind_business_schedule_business_name` (Business_Name),
     CONSTRAINT `fk_business_schedule_business_name`
     FOREIGN KEY (Business_Name)
@@ -604,4 +618,118 @@ CREATE TABLE Incident
 	IncidentID INT PRIMARY KEY NOT NULL,
     Incident_Date DATE NOT NULL,
     Incident_Description VARCHAR(45) NOT NULL,
+    isResident VARCHAR(45) NOT NULL,
+    Business_Involved VARCHAR(45) NOT NULL,
+    InvestigatingOfficer_ID INT(5) NOT NULL,
+    PenaltyImposed VARCHAR(45) NULL,
+    SecondingOfficer_ID INT(5) NOT NULL,
+    Seconding_PenaltyImposed VARCHAR(45) NULL,
+    INDEX `ind_incident_business_involved` (Business_Involved),
+    INDEX `ind_incident_investigating_officer` (InvestigatingOfficer_ID),
+    INDEX `ind_incident_seconding_officer` (SecondingOfficer_ID),
+    CONSTRAINT `fk_incident_business_involved`
+    FOREIGN KEY (Business_Involved)
+    REFERENCES hoa_db.Business (Business_Name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_incident_investigating_officer`
+    FOREIGN KEY (InvestigatingOfficer_ID)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_incident_seconding_officer`
+    FOREIGN KEY (SecondingOfficer_ID)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE Evidence
+(
+	EvidenceID INT PRIMARY KEY NOT NULL,
+    Evidence_Name VARCHAR(45) NOT NULL,
+    Evidence_Description VARCHAR(45) NOT NULL,
+    Evidence_Filename VARCHAR(45) NOT NULL,
+    SubmittingResident INT(5) NOT NULL,
+    AcceptingOfficer INT(5) NOT NULL,
+    EvidenceSubmission_Date DATE NOT NULL,
+    IncidentID INT NOT NULL,
+    INDEX `ind_evidence_filename` (Evidence_Filename),
+    INDEX `ind_evidence_submittingresident` (SubmittingResident),
+    INDEX `ind_evidence_acceptingofficer` (AcceptingOfficer),
+    INDEX `ind_evidence_incidentid` (IncidentID),
+    CONSTRAINT `fk_evidence_filename`
+    FOREIGN KEY (Evidence_Filename)
+    REFERENCES hoa_db.hoa_files (file_name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_evidence_submittingresident`
+    FOREIGN KEY (SubmittingResident)
+    REFERENCES hoa_db.resident (resident_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_evidence_acceptingofficer`
+    FOREIGN KEY (AcceptingOfficer)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_evidence_incidentID`
+    FOREIGN KEY (IncidentID)
+    REFERENCES hoa_db.Incident (IncidentID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE EvidencesUsed
+(
+	IncidentID INT PRIMARY KEY NOT NULL,
+    EvidenceID INT NOT NULL,
+    INDEX `ind_evidencesused_incidentID` (IncidentID),
+    INDEX `ind_evidencesued_evidenceID` (EvidenceID),
+    CONSTRAINT `fk_evidencesused_incidentID`
+    FOREIGN KEY (IncidentID)
+    REFERENCES hoa_db.Incident (IncidentID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_evidencesued_evidenceID`
+    FOREIGN KEY (EvidenceID)
+    REFERENCES hoa_db.Evidence (EvidenceID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE PersonsInvolved
+(
+	IncidentID INT PRIMARY KEY NOT NULL,
+    individual_id INT NOT NULL,
+    INDEX `ind_personsinvolved_individual_id` (individual_id),
+    INDEX `ind_personsinvolved_incidentID` (IncidentID),
+    CONSTRAINT `fk_personsinvolved_individual_id`
+    FOREIGN KEY (individual_id)
+    REFERENCES hoa_db.individual (individual_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_personsinvolvd_incidentID`
+    FOREIGN KEY (IncidentID)
+    REFERENCES hoa_db.Incident (IncidentID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE Incident_RulesBroken
+(
+	IncidentID INT PRIMARY KEY NOT NULL,
+    RuleNumber INT NOT NULL,
+    INDEX `ind_incident_rulenumber` (RuleNumber),
+    INDEX `ind_incident_incidentID` (IncidentID),
+    CONSTRAINT `fk_incident_rulenumber`
+    FOREIGN KEY (RuleNumber)
+    REFERENCES hoa_db.Rules (RuleNumber)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_incident_incidentID`
+    FOREIGN KEY (IncidentID)
+    REFERENCES hoa_db.Incident (IncidentID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 );
