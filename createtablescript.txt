@@ -546,15 +546,15 @@ CREATE TABLE BusinessPermit
 CREATE TABLE Business
 (
     Business_Name VARCHAR(45) PRIMARY KEY NOT NULL,
-    BusinessOwner_Name VARCHAR(45) NOT NULL,
+    BusinessOwner_Name VARCHAR(45) UNIQUE NOT NULL,
     Residentship BOOLEAN NOT NULL,
     Business_Address INT NOT NULL,
     Business_Email VARCHAR(45) NOT NULL,
     Business_Description VARCHAR(45) NOT NULL,
     Business_Type ENUM('Sole Proprietorship', 'Partnership', 'Corporation') NOT NULL,
 	Business_StartDATE DATE NOT NULL,
-    Business_EndDATE DATE NOT NULL,
-    Business_FacebookURL VARCHAR(45) NOT NULL,
+    Business_EndDATE DATE NULL,
+    Business_FacebookURL VARCHAR(45) NULL,
     BusinessPermitID INT NOT NULL,
     INDEX `ind_Business_Address` (Business_Address),
     INDEX `ind_Business_Business_Permit_ID` (BusinessPermitID),
@@ -730,6 +730,89 @@ CREATE TABLE Incident_RulesBroken
     CONSTRAINT `fk_incident_incidentID`
     FOREIGN KEY (IncidentID)
     REFERENCES hoa_db.Incident (IncidentID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE MonthlyDueBill
+(
+	BillID INT PRIMARY KEY NOT NULL,
+    Business_Name VARCHAR(45) NOT NULL,
+    `Month` INT NOT NULL,
+    `Year` INT NOT NULL,
+    Date_Generated DATE NOT NULL,
+    Awarded_Discount FLOAT NULL,
+    Unpaiid_Dues FLOAT NULL,
+    Incurred_Penalties FLOAT NULL,
+    Deduction_Amount FLOAT NULL,
+    Total_Amount FLOAT NOT NULL,
+    Penaltied_Employee INT NOT NULL,
+    INDEX `ind_monthlyduebill_business_name` (Business_Name),
+    INDEX `ind_monthlyduebill_employeeid` (Penaltied_Employee),
+    CONSTRAINT `fk_monthlyduebill_business_name`
+    FOREIGN KEY (Business_Name)
+    REFERENCES hoa_db.Business (Business_Name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_monthlyduebill_employeeid`
+    FOREIGN KEY (Penaltied_Employee)
+    REFERENCES hoa_db.BusinessEmployees (EmployeeID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE BillItems
+(
+	BillItemID INT PRIMARY KEY NOT NULL,
+    BillID INT NOT NULL,
+    Description VARCHAR(45) NOT NULL,
+    Amount FLOAT NOT NULL,
+    INDEX `ind_billitems_billid` (BillID),
+    CONSTRAINT `fk_billitems_billid`
+    FOREIGN KEY (BillID)
+    REFERENCES hoa_db.MonthlyDueBill (BillID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE TABLE Payment
+(
+	or_no INT PRIMARY KEY NOT NULL,
+    BillID INT NOT NULL,
+    Date_Of_Payment DATE NOT NULL,
+    Payer VARCHAR(45) NOT NULL,
+    Receiving_Officer INT(5) NOT NULL,
+    Business_Name VARCHAR(45) NOT NULL,
+    BusinessOwner_Payer VARCHAR(45) NULL,
+    AuthorizedEmployeeID_Payer INT NULL,
+    INDEX `ind_payment_billid` (BillID),
+    INDEX `ind_payment_receiving_officer` (Receiving_Officer),
+    INDEX `ind_payment_businessowner` (BusinessOwner_Payer),
+    INDEX `ind_payment_employeeid` (AuthorizedEmployeeID_Payer),
+    index `ind_payment_or_no` (or_no),
+    CONSTRAINT `fk_payment_billid`
+    FOREIGN KEY (BillID)
+    REFERENCES hoa_db.MonthlyDueBill (BillID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_payment_receiving_officer` 
+    FOREIGN KEY (Receiving_Officer)
+    REFERENCES hoa_db.hoa_officer (officer_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_payment_businessowner`
+    FOREIGN KEY (BusinessOwner_Payer)
+    REFERENCES hoa_db.Business (BusinessOwner_Name)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_payment_employeeid`
+    FOREIGN KEY (AuthorizedEmployeeID_Payer)
+    REFERENCES hoa_db.BusinessEmployees (EmployeeID)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_payment_or_no`
+    FOREIGN KEY (or_no)
+    REFERENCES hoa_db.receipt (or_no)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
