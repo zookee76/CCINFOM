@@ -1,12 +1,12 @@
 CREATE DATABASE IF NOT EXISTS `hoa_db`;
 USE `hoa_db`;
 
-CREATE TABLE regions 
+CREATE TABLE IF NOT EXISTS IF NOT EXISTS regions 
 (
     region VARCHAR(45) PRIMARY KEY NOT NULL
 );
 
-CREATE TABLE individual
+CREATE TABLE IF NOT EXISTS IF NOT EXISTS individual
 (
     individual_id INT PRIMARY KEY NOT NULL,
     indiv_lastname VARCHAR(45) NOT NULL,
@@ -22,12 +22,12 @@ CREATE TABLE individual
     UNIQUE INDEX `ind_indiv_fb_url` (fb_url)
 );
 
-CREATE TABLE officer_positions
+CREATE TABLE IF NOT EXISTS IF NOT EXISTS officer_positions
 (
     `position` VARCHAR(25) PRIMARY KEY NOT NULL
 );
 
-CREATE TABLE elections
+CREATE TABLE IF NOT EXISTS elections
 (
     elec_date DATE PRIMARY KEY NOT NULL,
     venue VARCHAR(45) NOT NULL,
@@ -38,25 +38,25 @@ CREATE TABLE elections
     witness_mobile INT(10) NOT NULL
 );
 
-CREATE TABLE household
+CREATE TABLE IF NOT EXISTS household
 (
     household_id INT(5) PRIMARY KEY NOT NULL
 );
 
-CREATE TABLE receipt
+CREATE TABLE IF NOT EXISTS receipt
 (
     or_no INT PRIMARY KEY NOT NULL,
     transact_date DATETIME NOT NULL,
     total_amount FLOAT NOT NULL
 );
 
-CREATE TABLE Rules
+CREATE TABLE IF NOT EXISTS Rules
 (
 	RuleNumber INT PRIMARY KEY NOT NULL,
     RuleDescription VARCHAR(1000) NOT NULL
 );
 
-CREATE TABLE provinces 
+CREATE TABLE IF NOT EXISTS provinces 
 (
     province_name VARCHAR(45) PRIMARY KEY NOT NULL,
     region VARCHAR(45) NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE provinces
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE cities
+CREATE TABLE IF NOT EXISTS cities
 (
     city VARCHAR(45) PRIMARY KEY NOT NULL,
     province VARCHAR(45) NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE cities
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE zipcodes
+CREATE TABLE IF NOT EXISTS zipcodes
 (
     zipcode INT PRIMARY KEY NOT NULL,
     province VARCHAR(45) NOT NULL,
@@ -101,7 +101,7 @@ CREATE TABLE zipcodes
 );
 
 
-CREATE TABLE address
+CREATE TABLE IF NOT EXISTS address
 (
     address_id INT PRIMARY KEY NOT NULL,
     stno VARCHAR(45) NOT NULL,
@@ -132,7 +132,7 @@ CREATE TABLE address
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE hoa 
+CREATE TABLE IF NOT EXISTS hoa 
 (
     hoa_name VARCHAR(45) PRIMARY KEY NOT NULL, 
     office_add INT NOT NULL,
@@ -149,7 +149,7 @@ CREATE TABLE hoa
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE homeowner
+CREATE TABLE IF NOT EXISTS homeowner
 (
     homeowner_id INT(5) PRIMARY KEY NOT NULL,
     homeowner_name VARCHAR(45) NOT NULL,
@@ -188,7 +188,7 @@ CREATE TABLE homeowner
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE hoa_officer
+CREATE TABLE IF NOT EXISTS hoa_officer
 (
     officer_id INT(5) PRIMARY KEY NOT NULL,
     homeowner_id INT(5) NOT NULL,
@@ -216,7 +216,7 @@ CREATE TABLE hoa_officer
 	ON UPDATE NO ACTION
 );
 
-CREATE TABLE hoa_files
+CREATE TABLE IF NOT EXISTS hoa_files
 (
     file_id INT PRIMARY KEY NOT NULL,
     file_name VARCHAR(45) UNIQUE NOT NULL,
@@ -241,7 +241,7 @@ CREATE TABLE hoa_files
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE property
+CREATE TABLE IF NOT EXISTS property
 (
     property_code VARCHAR(6) PRIMARY KEY NOT NULL,
     size DECIMAL NOT NULL,
@@ -256,7 +256,7 @@ CREATE TABLE property
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE resident
+CREATE TABLE IF NOT EXISTS resident
 (
     resident_id INT(5) PRIMARY KEY NOT NULL,
     is_renter TINYINT(1) NOT NULL,
@@ -279,7 +279,7 @@ CREATE TABLE resident
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE resident_idcard
+CREATE TABLE IF NOT EXISTS resident_idcard
 (
 	resident_idcardno VARCHAR(10) PRIMARY KEY NOT NULL,
     date_requested DATETIME NOT NULL,
@@ -304,7 +304,7 @@ CREATE TABLE resident_idcard
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE mobile
+CREATE TABLE IF NOT EXISTS mobile
 (
 	mobile_no INT(10) PRIMARY KEY NOT NULL,
     individual_id INT NOT NULL,
@@ -316,7 +316,7 @@ CREATE TABLE mobile
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE vehicle
+CREATE TABLE IF NOT EXISTS vehicle
 (
 	plate_no VARCHAR(7) PRIMARY KEY NOT NULL,
     owner_lastname VARCHAR(45) NOT NULL,
@@ -342,7 +342,7 @@ CREATE TABLE vehicle
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE orcr
+CREATE TABLE IF NOT EXISTS orcr
 (
 	orcr VARCHAR(45) PRIMARY KEY NOT NULL,
     plate_no VARCHAR(7) NOT NULL,
@@ -362,7 +362,7 @@ CREATE TABLE orcr
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE sticker
+CREATE TABLE IF NOT EXISTS sticker
 (
 	sticker_id INT PRIMARY KEY NOT NULL,
     year_valid INT(4) NOT NULL,
@@ -391,7 +391,7 @@ CREATE TABLE sticker
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE hoaofficer_sched
+CREATE TABLE IF NOT EXISTS hoaofficer_sched
 (
 	officer_id INT(5) NOT NULL,
     sched_time ENUM('AM', 'PM') NOT NULL,
@@ -411,7 +411,7 @@ CREATE TABLE hoaofficer_sched
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE asset
+CREATE TABLE IF NOT EXISTS asset
 (
 	asset_id VARCHAR(10) PRIMARY KEY NOT NULL,
     asset_name VARCHAR(45) NOT NULL,
@@ -440,7 +440,7 @@ CREATE TABLE asset
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE commercial_prop
+CREATE TABLE IF NOT EXISTS commercial_prop
 (
 	property_code VARCHAR(6) PRIMARY KEY NOT NULL,
     commercial_type ENUM('O', 'L', 'R', 'M') NOT NULL,
@@ -453,7 +453,7 @@ CREATE TABLE commercial_prop
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE residential_prop
+CREATE TABLE IF NOT EXISTS residential_prop
 (
 	property_code VARCHAR(6) PRIMARY KEY NOT NULL,
     household_id INT(5) NOT NULL,
@@ -471,7 +471,7 @@ CREATE TABLE residential_prop
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE AssetActivity
+CREATE TABLE IF NOT EXISTS AssetActivity
 (
 	AssetActivityID INT(8) PRIMARY KEY NOT NULL,
     asset_id VARCHAR(10) NOT NULL,
@@ -524,7 +524,7 @@ CREATE TABLE AssetActivity
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE BusinessPermit
+CREATE TABLE IF NOT EXISTS BusinessPermit
 (
 	BusinessPermitID INT PRIMARY KEY NOT NULL,
     Expiration_Date DATE NOT NULL,
@@ -544,7 +544,7 @@ CREATE TABLE BusinessPermit
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE Business
+CREATE TABLE IF NOT EXISTS Business
 (
     Business_Name VARCHAR(45) PRIMARY KEY NOT NULL,
     BusinessOwner_Name VARCHAR(45) UNIQUE NOT NULL,
@@ -571,7 +571,7 @@ CREATE TABLE Business
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE BusinessEmployees
+CREATE TABLE IF NOT EXISTS BusinessEmployees
 (
 	EmployeeID INT PRIMARY KEY NOT NULL,
     Business_Name VARCHAR(45) NOT NULL,
@@ -594,7 +594,7 @@ CREATE TABLE BusinessEmployees
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE business_schedule
+CREATE TABLE IF NOT EXISTS business_schedule
 (
 	business_sched_time ENUM('AM', 'PM') NOT NULL,
     Business_Name VARCHAR(45) NOT NULL,
@@ -614,7 +614,7 @@ CREATE TABLE business_schedule
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE Incident
+CREATE TABLE IF NOT EXISTS Incident
 (
 	IncidentID INT PRIMARY KEY NOT NULL,
     Incident_Date DATE NOT NULL,
@@ -645,7 +645,7 @@ CREATE TABLE Incident
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE Evidence
+CREATE TABLE IF NOT EXISTS Evidence
 (
 	EvidenceID INT PRIMARY KEY NOT NULL,
     Evidence_Name VARCHAR(45) NOT NULL,
@@ -681,7 +681,7 @@ CREATE TABLE Evidence
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE EvidencesUsed
+CREATE TABLE IF NOT EXISTS EvidencesUsed
 (
 	IncidentID INT PRIMARY KEY NOT NULL,
     EvidenceID INT NOT NULL,
@@ -699,7 +699,7 @@ CREATE TABLE EvidencesUsed
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE PersonsInvolved
+CREATE TABLE IF NOT EXISTS PersonsInvolved
 (
 	IncidentID INT PRIMARY KEY NOT NULL,
     individual_id INT NOT NULL,
@@ -717,7 +717,7 @@ CREATE TABLE PersonsInvolved
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE Incident_RulesBroken
+CREATE TABLE IF NOT EXISTS Incident_RulesBroken
 (
 	IncidentID INT PRIMARY KEY NOT NULL,
     RuleNumber INT NOT NULL,
@@ -735,7 +735,7 @@ CREATE TABLE Incident_RulesBroken
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE MonthlyDueBill
+CREATE TABLE IF NOT EXISTS MonthlyDueBill
 (
 	BillID INT PRIMARY KEY NOT NULL,
     Business_Name VARCHAR(45) NOT NULL,
@@ -762,7 +762,7 @@ CREATE TABLE MonthlyDueBill
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE BillItems
+CREATE TABLE IF NOT EXISTS BillItems
 (
 	BillItemID INT PRIMARY KEY NOT NULL,
     BillID INT NOT NULL,
@@ -776,7 +776,7 @@ CREATE TABLE BillItems
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE Payment
+CREATE TABLE IF NOT EXISTS Payment
 (
 	or_no INT PRIMARY KEY NOT NULL,
     BillID INT NOT NULL,
