@@ -497,7 +497,8 @@ CREATE TABLE IF NOT EXISTS AssetActivity
     REFERENCES hoa_db.hoa_officer (officer_id),
     CONSTRAINT `fk_AssetActivity_hoa_president`
     FOREIGN KEY (hoa_president)
-    REFERENCES hoa_db.hoa_officer (officer_id)
+    REFERENCES hoa_db.hoa_officer (officer_id),
+    CONSTRAINT `chk_approved` CHECK (approved = 1)
 );
 
 -- -----------------------------------------------------
@@ -511,6 +512,8 @@ CREATE TABLE IF NOT EXISTS BusinessPermit
     Expiration_Date DATE NOT NULL,
     Processing_Officer INT(5) NOT NULL,
     Permit_FileID INT NOT NULL,
+    renewed TINYINT(1) NOT NULL,
+    Submission_Date DATE NULL,
     INDEX `ind_BusinessPermit_processing_officer` (Processing_Officer),
     INDEX `ind_BusinessPermit_permit_filename` (Permit_FileID),
     CONSTRAINT `fk_BusinessPermit_processing_officer`
@@ -1084,11 +1087,10 @@ VALUES (12345678, 'P000000001', 'Activity', '2023-09-09', 'Dela Cruz', 'Juan', '
 
 
 -- BUSINESS PERMIT
-INSERT INTO BusinessPermit (BusinessPermitID, Expiration_Date, Processing_Officer, Permit_FileID)
-VALUES
-    (1, '2023-12-31', 99901, 555556661),
-    (2, '2024-06-30', 99902, 555556662),
-    (3, '2024-03-15', 99903, 555556663);
+INSERT INTO BusinessPermit (BusinessPermitID, Expiration_Date, Processing_Officer, Permit_FileID, renewed, Submission_Date)
+VALUES	(1, '2023-12-31', 99901, 555556661, 1, '2023-11-04'),
+		(2, '2024-06-30', 99902, 555556662, 0, NULL), 
+		(3, '2024-03-15', 99903, 555556663, 1, '2023-10-20');
 
 
 -- BUSINESS
