@@ -441,12 +441,22 @@ FOREIGN KEY (household_id)
 REFERENCES household(household_id)
 );
 
+-- -----------------------------------------------------
+-- Table Rules
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS Rules;
 CREATE TABLE IF NOT EXISTS Rules
 (
 	RuleNumber INT PRIMARY KEY NOT NULL,
     RuleDescription VARCHAR(1000) NOT NULL
 );
 
+-- -----------------------------------------------------
+-- Table AssetActivity
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS AssetActivity;
 CREATE TABLE IF NOT EXISTS AssetActivity
 (
 	AssetActivityID INT(8) PRIMARY KEY NOT NULL,
@@ -475,30 +485,24 @@ CREATE TABLE IF NOT EXISTS AssetActivity
     INDEX `ind_AssetActivity_hoa_president` (hoa_president),
     CONSTRAINT `fk_AssetActivity_asset_id`
     FOREIGN KEY (asset_id)
-    REFERENCES hoa_db.asset (asset_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.asset (asset_id),
     CONSTRAINT `fk_AssetActivity_receiptID`
     FOREIGN KEY (or_no)
-    REFERENCES hoa_db.receipt (or_no)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.receipt (or_no),
     CONSTRAINT `fk_AssetActivity_mobile_no`
     FOREIGN KEY (mobile_no)
-    REFERENCES hoa_db.mobile (mobile_no)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.mobile (mobile_no),
     CONSTRAINT `fk_AssetActivity_officer_id`
     FOREIGN KEY (officer_id)
-    REFERENCES hoa_db.hoa_officer (officer_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.hoa_officer (officer_id),
     CONSTRAINT `fk_AssetActivity_hoa_president`
     FOREIGN KEY (hoa_president)
     REFERENCES hoa_db.hoa_officer (officer_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
+
+-- -----------------------------------------------------
+-- Table BusinessPermit
+-- -----------------------------------------------------
 
 DROP TABLE IF EXISTS BusinessPermit;
 CREATE TABLE IF NOT EXISTS BusinessPermit
@@ -511,16 +515,17 @@ CREATE TABLE IF NOT EXISTS BusinessPermit
     INDEX `ind_BusinessPermit_permit_filename` (Permit_FileID),
     CONSTRAINT `fk_BusinessPermit_processing_officer`
     FOREIGN KEY (Processing_Officer)
-    REFERENCES hoa_db.hoa_officer (officer_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.hoa_officer (officer_id),
     CONSTRAINT `fk_BusinessPermit_permit_fileid`
     FOREIGN KEY (Permit_FileID)
     REFERENCES hoa_db.hoa_files (file_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table Business
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS Business;
 CREATE TABLE IF NOT EXISTS Business
 (
     Business_Name VARCHAR(45) PRIMARY KEY NOT NULL,
@@ -538,16 +543,17 @@ CREATE TABLE IF NOT EXISTS Business
     INDEX `ind_Business_Business_Permit_ID` (BusinessPermitID),
     CONSTRAINT `fk_Business_Address`
     FOREIGN KEY (Business_Address)
-    REFERENCES hoa_db.address (address_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.address (address_id),
     CONSTRAINT `fk_Business_Business_Permit_ID` 
     FOREIGN KEY (BusinessPermitID)
     REFERENCES hoa_db.BusinessPermit (BusinessPermitID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table BusinessEmployees
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS BusinessEmployees;
 CREATE TABLE IF NOT EXISTS BusinessEmployees
 (
 	EmployeeID INT PRIMARY KEY NOT NULL,
@@ -561,20 +567,20 @@ CREATE TABLE IF NOT EXISTS BusinessEmployees
     INDEX `ind_BusinessEmployees_Business_Name` (Business_Name),
     CONSTRAINT `fk_BusinessEmployees_mobile_no`
     FOREIGN KEY (`Employee_MobileNo.`)
-    REFERENCES hoa_db.mobile (mobile_no)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.mobile (mobile_no),
     CONSTRAINT `fk_BusinessEmployees_Business_Name`
     FOREIGN KEY (Business_Name)
     REFERENCES hoa_db.Business (Business_Name)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table business_schedule
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS business_schedule;
 CREATE TABLE IF NOT EXISTS business_schedule
 (
-	business_sched_time ENUM('AM', 'PM') NOT NULL,
-    Business_Name VARCHAR(45) NOT NULL,
+    Business_Name VARCHAR(45) PRIMARY KEY NOT NULL,
     open_Mon TINYINT(1) NOT NULL,
     open_Tue TINYINT(1) NOT NULL,
     open_Wed TINYINT(1) NOT NULL,
@@ -582,15 +588,19 @@ CREATE TABLE IF NOT EXISTS business_schedule
     open_Fri TINYINT(1) NOT NULL,
     open_Sat TINYINT(1) NOT NULL,
     open_Sun TINYINT(1) NOT NULL,
-    PRIMARY KEY (business_sched_time, Business_Name),
+    open_time TIME NOT NULL,
+    close_time TIME NOT NULL,
     INDEX `ind_business_schedule_business_name` (Business_Name),
     CONSTRAINT `fk_business_schedule_business_name`
     FOREIGN KEY (Business_Name)
-    REFERENCES hoa_db.Business (Business_Name)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    REFERENCES hoa_db.Business (Business_Name)  
 );
 
+-- -----------------------------------------------------
+-- Table Incident
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS Incident;
 CREATE TABLE IF NOT EXISTS Incident
 (
 	IncidentID INT PRIMARY KEY NOT NULL,
@@ -607,21 +617,20 @@ CREATE TABLE IF NOT EXISTS Incident
     INDEX `ind_incident_seconding_officer` (SecondingOfficer_ID),
     CONSTRAINT `fk_incident_business_involved`
     FOREIGN KEY (Business_Involved)
-    REFERENCES hoa_db.Business (Business_Name)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.Business (Business_Name),
     CONSTRAINT `fk_incident_investigating_officer`
     FOREIGN KEY (InvestigatingOfficer_ID)
-    REFERENCES hoa_db.hoa_officer (officer_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.hoa_officer (officer_id),
     CONSTRAINT `fk_incident_seconding_officer`
     FOREIGN KEY (SecondingOfficer_ID)
     REFERENCES hoa_db.hoa_officer (officer_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table Evidence
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS Evidence;
 CREATE TABLE IF NOT EXISTS Evidence
 (
 	EvidenceID INT PRIMARY KEY NOT NULL,
@@ -638,26 +647,23 @@ CREATE TABLE IF NOT EXISTS Evidence
     INDEX `ind_evidence_incidentid` (IncidentID),
     CONSTRAINT `fk_evidence_filename`
     FOREIGN KEY (Evidence_FileID)
-    REFERENCES hoa_db.hoa_files (file_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.hoa_files (file_id),
     CONSTRAINT `fk_evidence_submittingresident`
     FOREIGN KEY (SubmittingResident)
-    REFERENCES hoa_db.resident (resident_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.resident (resident_id),
     CONSTRAINT `fk_evidence_acceptingofficer`
     FOREIGN KEY (AcceptingOfficer)
-    REFERENCES hoa_db.hoa_officer (officer_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.hoa_officer (officer_id),
     CONSTRAINT `fk_evidence_incidentID`
     FOREIGN KEY (IncidentID)
     REFERENCES hoa_db.Incident (IncidentID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table EvidencesUsed
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS EvidencesUsed;
 CREATE TABLE IF NOT EXISTS EvidencesUsed
 (
 	IncidentID INT PRIMARY KEY NOT NULL,
@@ -666,16 +672,17 @@ CREATE TABLE IF NOT EXISTS EvidencesUsed
     INDEX `ind_evidencesued_evidenceID` (EvidenceID),
     CONSTRAINT `fk_evidencesused_incidentID`
     FOREIGN KEY (IncidentID)
-    REFERENCES hoa_db.Incident (IncidentID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.Incident (IncidentID),
     CONSTRAINT `fk_evidencesued_evidenceID`
     FOREIGN KEY (EvidenceID)
     REFERENCES hoa_db.Evidence (EvidenceID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table PersonsInvolved
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS PersonsInvolved;
 CREATE TABLE IF NOT EXISTS PersonsInvolved
 (
 	IncidentID INT PRIMARY KEY NOT NULL,
@@ -684,16 +691,17 @@ CREATE TABLE IF NOT EXISTS PersonsInvolved
     INDEX `ind_personsinvolved_incidentID` (IncidentID),
     CONSTRAINT `fk_personsinvolved_individual_id`
     FOREIGN KEY (individual_id)
-    REFERENCES hoa_db.individual (individual_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.individual (individual_id),
     CONSTRAINT `fk_personsinvolvd_incidentID`
     FOREIGN KEY (IncidentID)
     REFERENCES hoa_db.Incident (IncidentID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table Incident_RulesBroken
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS Incident_RulesBroken;
 CREATE TABLE IF NOT EXISTS Incident_RulesBroken
 (
 	IncidentID INT PRIMARY KEY NOT NULL,
@@ -702,16 +710,17 @@ CREATE TABLE IF NOT EXISTS Incident_RulesBroken
     INDEX `ind_incident_incidentID` (IncidentID),
     CONSTRAINT `fk_incident_rulenumber`
     FOREIGN KEY (RuleNumber)
-    REFERENCES hoa_db.Rules (RuleNumber)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.Rules (RuleNumber),
     CONSTRAINT `fk_incident_incidentID`
     FOREIGN KEY (IncidentID)
     REFERENCES hoa_db.Incident (IncidentID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table MonthlyDueBill
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS MonthlyDueBill;
 CREATE TABLE IF NOT EXISTS MonthlyDueBill
 (
 	BillID INT PRIMARY KEY NOT NULL,
@@ -729,16 +738,17 @@ CREATE TABLE IF NOT EXISTS MonthlyDueBill
     INDEX `ind_monthlyduebill_employeeid` (Penaltied_Employee),
     CONSTRAINT `fk_monthlyduebill_business_name`
     FOREIGN KEY (Business_Name)
-    REFERENCES hoa_db.Business (Business_Name)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.Business (Business_Name),
     CONSTRAINT `fk_monthlyduebill_employeeid`
     FOREIGN KEY (Penaltied_Employee)
     REFERENCES hoa_db.BusinessEmployees (EmployeeID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table BillItems
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS BillItems;
 CREATE TABLE IF NOT EXISTS BillItems
 (
 	BillItemID INT PRIMARY KEY NOT NULL,
@@ -749,10 +759,13 @@ CREATE TABLE IF NOT EXISTS BillItems
     CONSTRAINT `fk_billitems_billid`
     FOREIGN KEY (BillID)
     REFERENCES hoa_db.MonthlyDueBill (BillID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
+-- -----------------------------------------------------
+-- Table Payment
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS Payment;
 CREATE TABLE IF NOT EXISTS Payment
 (
 	or_no INT PRIMARY KEY NOT NULL,
@@ -770,29 +783,19 @@ CREATE TABLE IF NOT EXISTS Payment
     index `ind_payment_or_no` (or_no),
     CONSTRAINT `fk_payment_billid`
     FOREIGN KEY (BillID)
-    REFERENCES hoa_db.MonthlyDueBill (BillID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.MonthlyDueBill (BillID),
     CONSTRAINT `fk_payment_receiving_officer` 
     FOREIGN KEY (Receiving_Officer)
-    REFERENCES hoa_db.hoa_officer (officer_id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.hoa_officer (officer_id),
     CONSTRAINT `fk_payment_businessowner`
     FOREIGN KEY (BusinessOwner_Payer)
-    REFERENCES hoa_db.Business (BusinessOwner_Name)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.Business (BusinessOwner_Name),
     CONSTRAINT `fk_payment_employeeid`
     FOREIGN KEY (AuthorizedEmployeeID_Payer)
-    REFERENCES hoa_db.BusinessEmployees (EmployeeID)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES hoa_db.BusinessEmployees (EmployeeID),
     CONSTRAINT `fk_payment_or_no`
     FOREIGN KEY (or_no)
     REFERENCES hoa_db.receipt (or_no)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
 
 
@@ -1111,14 +1114,11 @@ VALUES
 
 
 -- BUSINESS SCHEDULE
-INSERT INTO business_schedule (business_sched_time, Business_Name, open_Mon, open_Tue, open_Wed, open_Thu, open_Fri, open_Sat, open_Sun)
+INSERT INTO business_schedule (Business_Name, open_Mon, open_Tue, open_Wed, open_Thu, open_Fri, open_Sat, open_Sun, open_time, close_time)
 VALUES
-    ('AM', 'Stir-Fry Classics', 1, 1, 1, 1, 1, 0, 0),
-    ('PM', 'Stir-Fry Classics', 0, 0, 0, 0, 0, 1, 1),
-    ('AM', 'Salon ni Maria', 1, 1, 1, 1, 1, 0, 0),
-    ('PM', 'Salon ni Maria', 0, 0, 0, 0, 0, 1, 1),
-    ('AM', 'TechOne', 1, 1, 1, 1, 1, 0, 0),
-    ('PM', 'TechOne', 0, 0, 0, 0, 0, 1, 1);
+    ('Stir-Fry Classics', 1, 1, 1, 1, 1, 0, 0, '09:00:00', '21:00:00'),
+    ('Salon ni Maria', 1, 1, 1, 1, 1, 0, 0, '10:00:00', '20:00:00'),
+    ('TechOne', 1, 1, 1, 1, 1, 0, 0, '10:00:00', '22:00:00');
     
     
 -- INCIDENT
