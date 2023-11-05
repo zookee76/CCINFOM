@@ -465,7 +465,7 @@ CREATE TABLE IF NOT EXISTS AssetActivity
     incharge_firstname VARCHAR(45) NOT NULL,
     incharge_lastname VARCHAR(45) NOT NULL,
     incharge_mi VARCHAR(3) NOT NULL,
-    mobile_no BIGINT NOT NULL,
+    mobile_no BIGINT(10) NOT NULL,
     activitylocation_x FLOAT NOT NULL,
     activitylocation_y FLOAT NOT NULL,
     cost FLOAT NOT NULL,
@@ -479,7 +479,6 @@ CREATE TABLE IF NOT EXISTS AssetActivity
     hoa_president INT(5) NOT NULL,
     approved TINYINT(1) NOT NULL,
     INDEX `ind_AssetActivity_asset_id` (asset_id),
-    INDEX `ind_AssetActivity_mobile_no` (mobile_no),
     INDEX `ind_AssetActivity_or_no` (or_no),
     INDEX `ind_AssetActivity_officer_id` (officer_id),
     INDEX `ind_AssetActivity_hoa_president` (hoa_president),
@@ -489,9 +488,6 @@ CREATE TABLE IF NOT EXISTS AssetActivity
     CONSTRAINT `fk_AssetActivity_receiptID`
     FOREIGN KEY (or_no)
     REFERENCES hoa_db.receipt (or_no),
-    CONSTRAINT `fk_AssetActivity_mobile_no`
-    FOREIGN KEY (mobile_no)
-    REFERENCES hoa_db.mobile (mobile_no),
     CONSTRAINT `fk_AssetActivity_officer_id`
     FOREIGN KEY (officer_id)
     REFERENCES hoa_db.hoa_officer (officer_id),
@@ -582,11 +578,7 @@ CREATE TABLE IF NOT EXISTS BusinessEmployees
     `Employee_MobileNo.` BIGINT NOT NULL,
     Employee_Position VARCHAR(45) NOT NULL,
     Authorized_Employee TINYINT(1) NOT NULL,
-    INDEX `ind_BusinessEmployees_mobile_no` (`Employee_MobileNo.`),
     INDEX `ind_BusinessEmployees_Business_Name` (Business_Name),
-    CONSTRAINT `fk_BusinessEmployees_mobile_no`
-    FOREIGN KEY (`Employee_MobileNo.`)
-    REFERENCES hoa_db.mobile (mobile_no),
     CONSTRAINT `fk_BusinessEmployees_Business_Name`
     FOREIGN KEY (Business_Name)
     REFERENCES hoa_db.Business (Business_Name)
@@ -748,11 +740,11 @@ CREATE TABLE IF NOT EXISTS MonthlyDueBill
     `Year` INT NOT NULL,
     Date_Generated DATE NOT NULL,
     Awarded_Discount FLOAT NULL,
-    Unpaiid_Dues FLOAT NULL,
+    Unpaid_Dues FLOAT NULL,
     Incurred_Penalties FLOAT NULL,
     Deduction_Amount FLOAT NULL,
     Total_Amount FLOAT NOT NULL,
-    Penaltied_Employee INT NOT NULL,
+    Penaltied_Employee INT NULL,
     INDEX `ind_monthlyduebill_business_name` (Business_Name),
     INDEX `ind_monthlyduebill_employeeid` (Penaltied_Employee),
     CONSTRAINT `fk_monthlyduebill_business_name`
@@ -995,10 +987,10 @@ VALUES (202379991,'2023-07-20',1500.00),
 (202379992,'2023-08-25',2250.00),
 (202379993,'2023-09-01',830.00),
 (202379994,'2023-09-06',1234.00),
-(202379995,'2023-09-03',892.00),
-(202379996,'2023-09-04',1000.00),
+(202379995,'2023-09-03',2500.00),
+(202379996,'2023-09-04',2440.00),
 (202379997,'2023-09-09',5500.00),
-(202379998,'2023-09-11',2345.00);
+(202379998,'2023-09-11',1770.00);
 
 -- RESIDENT IDCARD
 
@@ -1137,11 +1129,12 @@ VALUES
 -- BUSINESS EMPLOYEES
 INSERT INTO BusinessEmployees (EmployeeID, Business_Name, Employee_LastName, Employee_FirstName, `Employee_MobileNo.`, Employee_Position, Authorized_Employee)
 VALUES
-(1, 'Stir-Fry Classics', 'Dela Cruz', 'Juan', 9175459870, 'Manager', 1),
-(2, 'Salon ni Maria', 'Santos', 'Maria', 9173110229, 'Stylist', 1),
-(3, 'TechOne', 'Reyes', 'Antonio', 9207639255, 'IT Specialist', 1);
-
-
+(1, 'Stir-Fry Classics', 'Dela Cruz', 'Juanita', 9173110229, 'Manager', 1),
+(2, 'Salon ni Maria', 'Santos', 'Maria', 9171802742, 'Manager & Stylist', 1),
+(3, 'Stir-Fry Classics', 'Reyes', 'Antonio', 9171234567, 'Chef', 0),
+(4, 'Salon ni Maria', 'Guadalupe', 'Christian', 9207639255, 'Hairdresser', 0),
+(5, 'TechOne', 'Torres', 'Franz', 9207639255, 'Manager', 1),
+(6, 'TechOne', 'Oliveira', 'Marco', 9207639255, 'IT Specialist', 0);
 
 -- BUSINESS SCHEDULE
 INSERT INTO business_schedule (Business_Name, open_Mon, open_Tue, open_Wed, open_Thu, open_Fri, open_Sat, open_Sun, open_time, close_time)
@@ -1193,24 +1186,25 @@ VALUES
 
 -- MONTHLY DUE BILL
 INSERT INTO MonthlyDueBill (BillID, Business_Name, `Month`, `Year`, Date_Generated,
-							Awarded_Discount, Unpaiid_Dues, Incurred_Penalties, 
+							Awarded_Discount, Unpaid_Dues, Incurred_Penalties, 
                             Deduction_Amount, Total_Amount, Penaltied_Employee)
 VALUES
-    (123556, 'Stir-Fry Classics', 10, 2023, '2023-10-15', 1000.00, 1500.00, 200.00, 0.00, 2700.00, 1),
-    (215644, 'Salon ni Maria', 11, 2023, '2023-11-15', 0.00, 1800.00, 0.00, 200.00, 2000.00, 2),
-    (378234, 'TechOne', 12, 2023, '2023-12-15', 0.00, 2250.00, 0.00, 150.00, 2400.00, 3);
+    (123556, 'Stir-Fry Classics', 10, 2023, '2023-10-15', NULL, 2500.00, NULL, NULL, 2500.00, NULL),
+    (215644, 'Salon ni Maria', 11, 2023, '2023-11-15', NULL, 2040.00, 400, 200.00, 2440.00, 4),
+    (378234, 'TechOne', 12, 2023, '2023-12-15', 1000.00, 2770.00, NULL, -1000, 1770.00, NULL);
 
 -- BILL ITEMS
 INSERT INTO BillItems (BillItemID, BillID, Description, Amount)
 VALUES
-    (621312, 123556, 'Monthly Dues', 1500.00),
-    (532343, 123556, 'Penalties', 200.00),
-    (612342, 123556, 'Discount', -1000.00);
+    (621312, 123556, 'Monthly Dues', 2500.00),
+    (621313, 215644, 'Monthly Dues', 2040.00),
+    (621314, 378234, 'Monthly Dues', 2570.00),
+    (621315, 378234, 'PC Maintenance', 200.00);
 
 -- PAYMENT
 INSERT INTO Payment (or_no, BillID, Date_Of_Payment, Payer, Receiving_Officer, Business_Name, BusinessOwner_Payer, AuthorizedEmployeeID_Payer)
 VALUES
-    (202379995, 123556, '2023-01-05', 'Juan Dela Cruz', 99901, 'Stir-Fry Classics', 'Juan Dela Cruz', NULL),
-    (202379996, 123556, '2023-01-10', 'Maria Santos', 99902, 'Salon ni Maria', 'Maria Santos', NULL),
-    (202379998, 215644, '2023-02-15', 'Antonio Reyes', 99903, 'TechOne', 'Antonio Reyes', NULL);
+    (202379995, 123556, '2023-01-05', 'Juanita Dela Cruz', 99901, 'Stir-Fry Classics', NULL, 1),
+    (202379996, 215644, '2023-01-10', 'Maria Santos', 99902, 'Salon ni Maria', 'Maria Santos', NULL),
+    (202379998, 378234, '2023-02-15', 'Antonio Reyes', 99903, 'TechOne', 'Antonio Reyes', NULL);
     
