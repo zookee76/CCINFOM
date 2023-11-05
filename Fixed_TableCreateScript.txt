@@ -197,7 +197,7 @@ REFERENCES elections(elec_date)
 DROP TABLE IF EXISTS hoa_files;
 CREATE TABLE IF NOT EXISTS hoa_files (
 file_id INT NOT NULL,
-file_name VARCHAR(45) NOT NULL,
+file_name VARCHAR(45) UNIQUE NOT NULL,
 description VARCHAR(45) NOT NULL,
 location VARCHAR(45) NOT NULL,
 file_type ENUM('document', 'spreadsheet', 'pdf',
@@ -455,7 +455,6 @@ CREATE TABLE IF NOT EXISTS Rules
 -- -----------------------------------------------------
 -- Table AssetActivity
 -- -----------------------------------------------------
-
 DROP TABLE IF EXISTS AssetActivity;
 CREATE TABLE IF NOT EXISTS AssetActivity
 (
@@ -469,7 +468,8 @@ CREATE TABLE IF NOT EXISTS AssetActivity
     mobile_no BIGINT NOT NULL,
     activitylocation_x FLOAT NOT NULL,
     activitylocation_y FLOAT NOT NULL,
-    or_no INT NOT NULL,
+    cost FLOAT NOT NULL,
+    or_no INT NULL,
     `Status` ENUM('scheduled', 'ongoing', 'completed', 'deleted') NOT NULL,
     tentative_start DATETIME NOT NULL,
     tentative_end DATETIME NOT NULL,
@@ -527,17 +527,17 @@ CREATE TABLE IF NOT EXISTS BusinessPermit
 	BusinessPermitID INT PRIMARY KEY NOT NULL,
     Expiration_Date DATE NOT NULL,
     Processing_Officer INT(5) NOT NULL,
-    Permit_FileID INT NOT NULL,
+    Permit_Filename VARCHAR(45) NOT NULL,
     renewed TINYINT(1) NOT NULL,
     Submission_Date DATE NULL,
     INDEX `ind_BusinessPermit_processing_officer` (Processing_Officer),
-    INDEX `ind_BusinessPermit_permit_filename` (Permit_FileID),
+    INDEX `ind_BusinessPermit_permit_filename` (Permit_Filename),
     CONSTRAINT `fk_BusinessPermit_processing_officer`
     FOREIGN KEY (Processing_Officer)
     REFERENCES hoa_db.hoa_officer (officer_id),
-    CONSTRAINT `fk_BusinessPermit_permit_fileid`
-    FOREIGN KEY (Permit_FileID)
-    REFERENCES hoa_db.hoa_files (file_id)
+    CONSTRAINT `fk_BusinessPermit_permit_filename`
+    FOREIGN KEY (Permit_Filename)
+    REFERENCES hoa_db.hoa_files (file_name)
 );
 
 -- -----------------------------------------------------
@@ -655,18 +655,18 @@ CREATE TABLE IF NOT EXISTS Evidence
 	EvidenceID INT PRIMARY KEY NOT NULL,
     Evidence_Name VARCHAR(45) NOT NULL,
     Evidence_Description VARCHAR(45) NOT NULL,
-    Evidence_FileID INT NOT NULL,
+    Evidence_filename VARCHAR(45) NOT NULL,
     SubmittingResident INT(5) NOT NULL,
     AcceptingOfficer INT(5) NOT NULL,
     EvidenceSubmission_Date DATE NOT NULL,
     IncidentID INT NOT NULL,
-    INDEX `ind_evidence_fileid` (Evidence_FileID),
+    UNIQUE INDEX `ind_evidence_filename` (Evidence_filename),
     INDEX `ind_evidence_submittingresident` (SubmittingResident),
     INDEX `ind_evidence_acceptingofficer` (AcceptingOfficer),
     INDEX `ind_evidence_incidentid` (IncidentID),
     CONSTRAINT `fk_evidence_filename`
-    FOREIGN KEY (Evidence_FileID)
-    REFERENCES hoa_db.hoa_files (file_id),
+    FOREIGN KEY (Evidence_filename)
+    REFERENCES hoa_db.hoa_files (file_name),
     CONSTRAINT `fk_evidence_submittingresident`
     FOREIGN KEY (SubmittingResident)
     REFERENCES hoa_db.resident (resident_id),
@@ -944,7 +944,17 @@ VALUES (555556661, 'bylaws.pdf', 'notarized by-laws', 'D:/Animo HOA Documents/',
 		'pdf', '2020-03-17', 'Jose Rizal', 99901, 'Animo HOA'),
        (555556662, 'ABC1234-ORCR2022.pdf', 'ABC1234 ORCR 2022', 'D:/Animo HOA Documents/Vehicle Registration/', 
        'pdf', '2022-05-06', 'Juan Dela Cruz', 99902, 'Animo HOA'),
-       (555556663, 'DEF6789-ORCR2022.pdf', 'DEF6789 ORCR 2022', 'D:/Animo HOA Documents/Vehicle Registration/', 
+       (555556663, 'stir-fry-permit.pdf', 'business permit', 'D:/Animo HOA Documents/businesspermits/', 
+       'pdf', '2023-11-04', 'Juan Dela Cruz', 99902, 'Animo HOA'),
+       (555556664, 'salon-ni-maria-permit.pdf', 'business permit', 'D:/Animo HOA Documents/businesspermits/', 
+       'pdf', '2023-10-03', 'Maria Santos', 99902, 'Animo HOA'),
+       (555556665, 'techone-permit.pdf', 'business permit', 'D:/Animo HOA Documents/businesspermits/', 
+       'pdf', '2023-10-20', 'Antonio Reyes', 99902, 'Animo HOA'),
+       (555556666, 'CCTV Footage.mp4', 'evidence', 'D:/Animo HOA Documents/evidences/', 
+       'others', '2022-05-10', 'Emilio Aguinaldo', 99902, 'Animo HOA'),
+       (555556667, 'Photo Evidence.jpg', 'evidence', 'D:/Animo HOA Documents/evidences/', 
+       'image', '2022-05-10', 'Emilio Aguinaldo', 99902, 'Animo HOA'),
+       (555556668, 'Statement Document.pdf', 'evidence', 'D:/Animo HOA Documents/evidences/', 
        'pdf', '2022-05-10', 'Emilio Aguinaldo', 99902, 'Animo HOA');
 
 
@@ -983,9 +993,12 @@ VALUES (40011, 0, 'husband', 1, 42001, 1, 2023202410),
 INSERT INTO receipt (or_no, transact_date, total_amount)
 VALUES (202379991,'2023-07-20',1500.00),
 (202379992,'2023-08-25',2250.00),
-(202379993,'2023-09-01',830.00);
-
-
+(202379993,'2023-09-01',830.00),
+(202379994,'2023-09-06',1234.00),
+(202379995,'2023-09-03',892.00),
+(202379996,'2023-09-04',1000.00),
+(202379997,'2023-09-09',5500.00),
+(202379998,'2023-09-11',2345.00);
 
 -- RESIDENT IDCARD
 
@@ -1085,28 +1098,27 @@ VALUES
 
 -- ASSET ACTIVITY
 
+
 INSERT INTO AssetActivity (AssetActivityID, asset_id, Activity_Description, Activity_Date, 
                            incharge_firstname, incharge_lastname, incharge_mi, mobile_no, 
-                           activitylocation_x, activitylocation_y, or_no, `Status`, tentative_start, 
+                           activitylocation_x, activitylocation_y, cost, or_no, `Status`, tentative_start, 
                            tentative_end, actual_start, actual_end, officer_id, hoa_president, approved)
-VALUES (12345678, 'P000000001', 'Activity', '2023-09-09', 'Dela Cruz', 'Juan', 'R', 9175459870, 
-        0.0, 0.0, 202379991, 'scheduled', '2023-09-09', '2023-09-10', '2023-09-10', '2023-09-11', 
-        99901, 99901, 1),
-       (87654321, 'E000000001', 'Activity2', '2023-08-04', 'Dela Cruz', 'Juanita', 'G', 9173110229, 
-        0.0, 0.0, 202379992, 'scheduled', '2023-08-04', '2023-08-05', '2023-08-04', '2023-08-05', 
-        99902, 99901, 0),
-       (12344321, 'P000000002', 'Activity3', '2023-12-05', 'Rizal', 'Jose', 'P', 9207639255, 
-        0.0, 0.0, 202379993, 'scheduled', '2023-12-05', '2023-12-06', '2023-12-07', '2023-12-08', 
-        99901, 99901, 1);
-
-
-
+VALUES (12345678, 'P000000001', 'Clubhouse Reservation', '2023-09-09', 'Dela Cruz', 'Juan', 'R', 9175459870, 
+        123.4567, 234.5678, 1234.00, 202379994, 'scheduled', '2023-09-09', '2023-09-10', NULL, NULL, 
+        99901, 99901, 0),
+       (87654321, 'E000000001', 'Projector Maintenance', '2023-08-04', 'Dela Cruz', 'Juanita', 'G', 9173110229, 
+        123.4567, 234.5678, 0.0, NULL, 'deleted', '2023-08-04', '2023-08-05', NULL, NULL, 
+        99902, 99901, 1),
+       (12344321, 'P000000002', 'Basktball Court Renovation', '2023-12-05', 'Rizal', 'Jose', 'P', 9207639255, 
+		543.2100, 765.4321, 5500.00, 202379997, 'completed', '2023-12-05', '2023-12-06', '2023-12-07', '2023-12-08', 
+        99901, 99901, 0);
 
 -- BUSINESS PERMIT
-INSERT INTO BusinessPermit (BusinessPermitID, Expiration_Date, Processing_Officer, Permit_FileID, renewed, Submission_Date)
-VALUES	(1, '2023-12-31', 99901, 555556661, 1, '2023-11-04'),
-		(2, '2024-06-30', 99902, 555556662, 0, NULL), 
-		(3, '2024-03-15', 99903, 555556663, 1, '2023-10-20');
+
+INSERT INTO BusinessPermit (BusinessPermitID, Expiration_Date, Processing_Officer, Permit_Filename, renewed, Submission_Date)
+VALUES	(1, '2023-12-31', 99901, 'stir-fry-permit.pdf', 1, '2023-11-04'),
+		(2, '2024-06-30', 99902, 'salon-ni-maria-permit.pdf', 0, NULL), 
+		(3, '2024-03-15', 99903, 'techone-permit.pdf', 1, '2023-10-20');
 
 
 -- BUSINESS
@@ -1148,12 +1160,12 @@ VALUES
     (3, '2023-12-20', 'Theft Incident', 'No', 'TechOne', 99901, 'Penalty', 99903, 'Suspension');
 
 -- EVIDENCE
-INSERT INTO Evidence (EvidenceID, Evidence_Name, Evidence_Description, Evidence_FileID, 
+INSERT INTO Evidence (EvidenceID, Evidence_Name, Evidence_Description, Evidence_Filename, 
 					  SubmittingResident, AcceptingOfficer, EvidenceSubmission_Date, IncidentID)
 VALUES
-    (1, 'CCTV Footage', 'Video evidence of the incident', 555556661, 40011, 99901, '2023-10-20', 1),
-    (2, 'Photo Evidence', 'Photographs of the incident scene', 555556662, 40012, 99902, '2023-11-10', 2),
-    (3, 'Statement Document', 'Written statement document', 555556663, 40013, 99903, '2023-12-25', 3);
+    (1, 'CCTV Footage', 'Video evidence of the incident', 'CCTV Footage.mp4', 40011, 99901, '2023-10-20', 1),
+    (2, 'Photo Evidence', 'Photographs of the incident scene', 'Photo Evidence.jpg', 40012, 99902, '2023-11-10', 2),
+    (3, 'Statement Document', 'Written statement document', 'Statement Document.pdf', 40013, 99903, '2023-12-25', 3);
 
 
 -- EVIDENCES USED
@@ -1184,20 +1196,21 @@ INSERT INTO MonthlyDueBill (BillID, Business_Name, `Month`, `Year`, Date_Generat
 							Awarded_Discount, Unpaiid_Dues, Incurred_Penalties, 
                             Deduction_Amount, Total_Amount, Penaltied_Employee)
 VALUES
-    (1, 'Stir-Fry Classics', 10, 2023, '2023-10-15', 1000.00, 1500.00, 200.00, 0.00, 2700.00, 1),
-    (2, 'Salon ni Maria', 11, 2023, '2023-11-15', 0.00, 1800.00, 0.00, 200.00, 2000.00, 2),
-    (3, 'TechOne', 12, 2023, '2023-12-15', 0.00, 2250.00, 0.00, 150.00, 2400.00, 3);
+    (123556, 'Stir-Fry Classics', 10, 2023, '2023-10-15', 1000.00, 1500.00, 200.00, 0.00, 2700.00, 1),
+    (215644, 'Salon ni Maria', 11, 2023, '2023-11-15', 0.00, 1800.00, 0.00, 200.00, 2000.00, 2),
+    (378234, 'TechOne', 12, 2023, '2023-12-15', 0.00, 2250.00, 0.00, 150.00, 2400.00, 3);
 
 -- BILL ITEMS
 INSERT INTO BillItems (BillItemID, BillID, Description, Amount)
 VALUES
-    (1, 1, 'Monthly Dues', 1500.00),
-    (2, 1, 'Penalties', 200.00),
-    (3, 1, 'Discount', -1000.00);
+    (621312, 123556, 'Monthly Dues', 1500.00),
+    (532343, 123556, 'Penalties', 200.00),
+    (612342, 123556, 'Discount', -1000.00);
 
 -- PAYMENT
 INSERT INTO Payment (or_no, BillID, Date_Of_Payment, Payer, Receiving_Officer, Business_Name, BusinessOwner_Payer, AuthorizedEmployeeID_Payer)
 VALUES
-    (202379991, 1, '2023-01-05', 'Juan Dela Cruz', 99901, 'Stir-Fry Classics', NULL, NULL),
-    (202379992, 1, '2023-01-10', 'Maria Santos', 99902, 'Salon ni Maria', NULL, NULL),
-    (202379993, 2, '2023-02-15', 'Antonio Reyes', 99903, 'TechOne', NULL, NULL);
+    (202379995, 123556, '2023-01-05', 'Juan Dela Cruz', 99901, 'Stir-Fry Classics', 'Juan Dela Cruz', NULL),
+    (202379996, 123556, '2023-01-10', 'Maria Santos', 99902, 'Salon ni Maria', 'Maria Santos', NULL),
+    (202379998, 215644, '2023-02-15', 'Antonio Reyes', 99903, 'TechOne', 'Antonio Reyes', NULL);
+    
