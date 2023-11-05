@@ -477,7 +477,7 @@ CREATE TABLE IF NOT EXISTS AssetActivity
     actual_end DATETIME NULL,
     officer_id INT(5) NOT NULL,
     hoa_president INT(5) NOT NULL,
-    approved TINYINT(1) NOT NULL,
+    approved TINYINT(1) NULL,
     INDEX `ind_AssetActivity_asset_id` (asset_id),
     INDEX `ind_AssetActivity_or_no` (or_no),
     INDEX `ind_AssetActivity_officer_id` (officer_id),
