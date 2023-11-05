@@ -506,7 +506,7 @@ FOR EACH ROW
 BEGIN
   IF OLD.approved = 0 THEN
     SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'Cannot delete a row without approval of HOA president.';
+    SET MESSAGE_TEXT = 'Cannot delete row without approval of HOA president.';
   END IF;
 END;
 //
@@ -1044,7 +1044,8 @@ VALUES
 INSERT INTO hoaofficer_sched (officer_id, sched_time, avail_Mon, avail_Tue, 
 							  avail_Wed, avail_Thu, avail_Fri, avail_Sat, avail_Sun)
 VALUES (99901, 'AM', 1, 1, 1, 1, 1, 1, 1),
-(99902, 'PM', 1, 1, 1, 1, 1, 1, 1);
+(99902, 'PM', 1, 1, 1, 1, 1, 1, 1),
+(99903, 'AM', 1, 1, 1, 1, 1, 1, 1);
 
 
 
