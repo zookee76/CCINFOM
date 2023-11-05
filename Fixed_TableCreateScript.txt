@@ -501,6 +501,20 @@ CREATE TABLE IF NOT EXISTS AssetActivity
     CONSTRAINT `chk_approved` CHECK (approved = 1)
 );
 
+DELIMITER //
+
+CREATE TRIGGER prevent_delete_approved_rows
+BEFORE DELETE ON AssetActivity
+FOR EACH ROW
+BEGIN
+  IF OLD.approved = 0 THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Cannot delete rows with president approval';
+  END IF;
+END;
+//
+DELIMITER ;
+
 -- -----------------------------------------------------
 -- Table BusinessPermit
 -- -----------------------------------------------------
