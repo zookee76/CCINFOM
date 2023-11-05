@@ -503,17 +503,19 @@ CREATE TABLE IF NOT EXISTS AssetActivity
 
 DELIMITER //
 
-CREATE TRIGGER prevent_delete_approved_rows
+-- Trigger to prevent deletion without approval of HOA President
+CREATE TRIGGER deleteAssetActivity
 BEFORE DELETE ON AssetActivity
 FOR EACH ROW
 BEGIN
   IF OLD.approved = 0 THEN
     SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'Cannot delete rows with president approval';
+    SET MESSAGE_TEXT = 'Cannot delete a row without approval of HOA president.';
   END IF;
 END;
 //
 DELIMITER ;
+
 
 -- -----------------------------------------------------
 -- Table BusinessPermit
