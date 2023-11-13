@@ -165,10 +165,10 @@ DROP TABLE IF EXISTS trainee_assessment;
 CREATE TABLE IF NOT EXISTS trainee_assessment
 (
 assessment_id INT PRIMARY KEY NOT NULL,
-evaluation_date DATE NOT NULL,
+evaluation_date DATE NULL,
 trainee_id INT NOT NULL,
 mentor_id INT NOT NULL,
-evaluation_score ENUM('0.0', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0') UNIQUE NOT NULL,
+evaluation_score ENUM('0.0', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0') UNIQUE NULL,
 explanation VARCHAR(500) NULL,
 INDEX `ind_trainee_assessment_mentor_id` (mentor_id),
 INDEX `ind_trainee_assessment_trainee_id` (trainee_id),
