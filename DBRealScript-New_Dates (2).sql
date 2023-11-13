@@ -143,11 +143,12 @@ REFERENCES culinary_db.training_program(program_name)
 DROP TABLE IF EXISTS enrollment;
 CREATE TABLE IF NOT EXISTS enrollment
 (
-enrollment_id INT PRIMARY KEY NOT NULL,
+enrollment_id INT NOT NULL,
 trainee_id INT NOT NULL,
 training_program ENUM('french_cuisine','japanese_cuisine','greek_cuisine','filipino_cuisine','italian_cuisine') NOT NULL,
 enrollment_date DATE NOT NULL,
-finish_date DATE UNIQUE NULL,
+finish_date DATE NOT NULL,
+PRIMARY KEY (enrollment_id, finish_date),
 INDEX `ind_enrollment_trainee_id` (trainee_id),
 INDEX `ind_enrollment_training_program` (training_program),
 INDEX `ind_enrollment_finish_date` (finish_date),
@@ -280,7 +281,7 @@ VALUES
 -- training_program
 INSERT INTO training_program (program_name, start_date, end_date, cost, venue, class_limit)
 VALUES
-	('french_cuisine', '2023-10-02', '2023-09-21', 90000.00, 'EU1046', 30), -- programs are 11 weeks long, mon programs end on thurs 
+	('french_cuisine', '2023-10-02', '2023-12-21', 90000.00, 'EU1046', 30), -- programs are 11 weeks long, mon programs end on thurs 
     ('japanese_cuisine', '2023-04-04', '2023-06-23', 85000.00, 'AS204', 15), -- tues programs end on fri
     ('greek_cuisine', '2023-01-02', '2023-03-23', 63000.00, 'AS304', 35), -- monday and thurs
     ('filipino_cuisine', '2023-07-04', '2023-09-15', 78000.00, 'AS602', 40), -- tues and fri
@@ -337,8 +338,8 @@ VALUES
 	(123556, 219812, 'japanese_cuisine', '2023-03-04', '2023-06-23'), -- enrollment starts exactly 1 month before program start
     (167899, 223692, 'filipino_cuisine', '2023-06-04', '2023-09-15'),
     (215644, 227279, 'greek_cuisine', '2022-12-02', '2023-03-23'),
-    (242565, 231967, 'french_cuisine', '2023-09-02', NULL),
-    (389072, 234678, 'italian_cuisine', '2023-09-04', NULL);
+    (242565, 231967, 'french_cuisine', '2023-09-02', '2023-12-21'),
+    (389072, 234678, 'italian_cuisine', '2023-09-04','2023-12-24');
 
 -- trainee_assessment
 INSERT INTO trainee_assessment (assessment_id, evaluation_date, trainee_id, mentor_id, evaluation_score, explanation)
