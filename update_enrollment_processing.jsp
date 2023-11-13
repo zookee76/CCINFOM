@@ -5,6 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.*, enrollmentmgt.*" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -23,6 +24,7 @@
                 int v_age = Integer.parseInt(request.getParameter("age"));
                 String v_contact = request.getParameter("contact");
                 long vv_contact = 0;
+                String v_paymentstatus = request.getParameter("payment_status");
 
                 try 
                 {
@@ -41,8 +43,9 @@
                 A.middle_initial_name = v_middle_initial_name;
                 A.age = v_age;
                 A.contact = vv_contact;
+                A.paymentstatus = v_paymentstatus;
                 
-                int status = A.mod_trainee(A.trainee_id, A.last_name, A.first_name, A.middle_initial_name, A.age, A.contact);
+                int status = A.mod_trainee(A.trainee_id, A.last_name, A.first_name, A.middle_initial_name, A.age, A.contact, A.paymentstatus);
 
                 if (status == 1)
                 {

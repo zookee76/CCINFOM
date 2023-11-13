@@ -18,8 +18,13 @@
             First Name: <input type="text" id="first_name" name="first_name"><br>
             Middle Initial Name: <input type="text" id="middle_initial_name" name="middle_initial_name"><br>
             Age: <input type="number" id="age" name="age" min="18" max="99"><br>
-            Contact: <input type="tel" id="contact" name="contact" pattern="[0-9]{10}" placeholder="1234567890">            
-                <input type="Submit" value="Submit">
+            Contact: <input type="tel" id="contact" name="contact" pattern="[0-9]{10}" placeholder="1234567890"><br>
+            Payment Status:
+            <select id="payment_status" name="payment_status" required>
+                <option value="paid">Paid</option>
+                <option value="unpaid">Unpaid</option>
+            </select>
+            <input type="Submit" value="Submit">
         </form>
     </body>
 </html>
