@@ -66,4 +66,61 @@ public class enrollment
             return 0;
         }
     }
+    
+    public int modEnrollment(int trainee_id)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            java.sql.Date enrollmentDate = new java.sql.Date(System.currentTimeMillis());
+            
+            PreparedStatement pstst = conn.prepareStatement("UPDATE enrollment enrollmentDate = ? WHERE trainee_id = ?");
+
+            pstst.setDate(1, enrollmentDate);
+            pstst.setInt(2, trainee_id);
+
+            pstst.executeUpdate();
+            pstst.close();
+            conn.close();
+                
+            return 1;
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
+    public int deleteEnrollment(int trainee_id)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstst = conn.prepareStatement("DELETE FROM enrollment WHERE trainee_id = ?");
+
+            pstst.setInt(1, trainee_id);
+
+            pstst.executeUpdate();
+            pstst.close();
+            conn.close();
+                
+            return 1;
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
 }

@@ -98,10 +98,157 @@ public class trainees
             return 0;
         }
     }
+    
+    public int mod_trainee(int trainee_id, String last_name, String first_name, String middle_initial_name, int age, long contact)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            boolean existingTrainee = doesTraineeExist(trainee_id);
+            
+            if (existingTrainee)
+            {
+                Enrollment.modEnrollment(trainee_id);
+                
+                PreparedStatement pstst = conn.prepareStatement("UPDATE trainee SET last_name = ?, first_name = ?, middle_initial_name = ?, age = ?, contact = ? WHERE trainee_id = ?");
 
+                pstst.setString(1, last_name);
+                pstst.setString(2, first_name);
+                pstst.setString(3, middle_initial_name);
+                pstst.setInt(4, age);
+                pstst.setLong(5, contact);
+                pstst.setInt(6, trainee_id);
+
+                pstst.executeUpdate();
+                pstst.close();
+                conn.close();
+
+                return 1;
+            }
+            
+            else
+            {
+                conn.close();
+                return 0;
+            }
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
+    public int deleteTrainee(int trainee_id)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            boolean existingTrainee = doesTraineeExist(trainee_id);
+  
+            if (existingTrainee)
+            {
+                Enrollment.deleteEnrollment(trainee_id);
+                PreparedStatement pstmt = conn.prepareStatement("DELETE FROM trainee WHERE trainee_id = ?");
+                pstmt.setInt(1, trainee_id);
+                pstmt.executeUpdate();   
+                pstmt.close();
+                conn.close();
+
+                return 1;
+            }
+            
+            else
+            {
+                conn.close();
+                return 0;
+            }
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
+    public void listTrainees()
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT trainee_id FROM trainee");
+            ResultSet rst = pstmt.executeQuery();
+            trainee_idList.clear();
+            
+            while (rst.next())
+            {
+                trainee_id = rst.getInt("trainee_id");
+                trainee_idList.add(trainee_id);
+            }
+            
+            pstmt.close();
+            conn.close();
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public boolean doesTraineeExist(int trainee_id)
+    {
+        try
+        {
+            Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT trainee_id FROM trainee WHERE trainee_id = ?");
+            pstmt.setInt(1, trainee_id);
+            ResultSet rst = pstmt.executeQuery();
+            if (rst.next()) 
+            {
+                pstmt.close();
+                conn.close();
+                return true;
+            } 
+            
+            else 
+            {
+                pstmt.close();
+                conn.close();
+                return false;
+            }
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return false;
+        }
+        
+    }
     
     public static void main (String args[])
     {
         trainees A = new trainees();
+        A.listTrainees();
+        for (int i = 0; i < A.trainee_idList.size(); i++) 
+        {
+            System.out.println(A.trainee_idList.get(i));
+        }
     }
 }

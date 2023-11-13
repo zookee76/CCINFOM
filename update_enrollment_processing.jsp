@@ -1,22 +1,22 @@
 <%-- 
-    Document   : registerstudent_processing
-    Created on : 11 11, 23, 10:13:04 PM
+    Document   : update_enrollment_processing
+    Created on : 11 13, 23, 2:04:33 PM
     Author     : ccslearner
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.*, enrollmentmgt.*" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Enrollment Trainee Processing</title>
+        <title>Updating Enrollment Information</title>
     </head>
     <body>
         <form action = "index.html">
             <jsp:useBean id="A" class="enrollmentmgt.trainees" scope="session"/>
 
-            <%  // Receive values from register_trainee.html
+            <%  
+                int v_trainee_id = Integer.parseInt(request.getParameter("trainee_id"));
                 String v_last_name = request.getParameter("last_name");
                 String v_first_name = request.getParameter("first_name");
                 String v_middle_initial_name = request.getParameter("middle_initial_name");
@@ -33,53 +33,24 @@
                 {
                     out.println("Error: Please enter a valid contact number.");
                 }
-
-                String v_training_program_name = request.getParameter("training_program_name");
-
+                
+                A.trainee_id = v_trainee_id;
                 A.last_name = v_last_name;
                 A.last_name = v_last_name;
                 A.first_name = v_first_name;
                 A.middle_initial_name = v_middle_initial_name;
                 A.age = v_age;
                 A.contact = vv_contact;
-                A.training_program_name = v_training_program_name;
-
-                int section_id = -1;
-
-                if (A.training_program_name.equals("french_cuisine"))
-                {
-                    section_id = 0;
-                }
-
-                else if (A.training_program_name.equals("japanese_cuisine"))
-                {
-                    section_id = 10;
-                }
-
-                else if (A.training_program_name.equals("greek_cuisine"))
-                {
-                    section_id = 20;
-                }
-
-                else if (A.training_program_name.equals("filipino_cuisine"))
-                {
-                    section_id = 30;
-                }
-
-                else
-                {
-                    section_id = 40;
-                }
-
-                int status = A.register_trainee(A.last_name, A.first_name, A.middle_initial_name, A.age, A.contact, A.training_program_name, section_id);
+                
+                int status = A.mod_trainee(A.trainee_id, A.last_name, A.first_name, A.middle_initial_name, A.age, A.contact);
 
                 if (status == 1)
                 {
             %>
 
-            <h1>Enrollment of Trainee Successful!</h1>
+            <h1>Successfully Updated Trainee Information!</h1>
             <% } else {%>
-            <h1>Enrollment of Trainee Failed</h1>
+            <h1>Failed to Update Trainee Information.</h1>
             <% }%>
             
             <input type="Submit" value="Return to Menu">
