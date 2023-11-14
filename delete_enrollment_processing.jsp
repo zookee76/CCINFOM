@@ -10,7 +10,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Delete Erollment Information</title>
+        <title>Delete Enrollment Information</title>
     </head>
     <body>
         <form action = "index.html">

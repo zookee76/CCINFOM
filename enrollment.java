@@ -90,7 +90,7 @@ public class enrollment
             
             java.sql.Date enrollmentDate = new java.sql.Date(System.currentTimeMillis());
             
-            PreparedStatement pstst = conn.prepareStatement("UPDATE enrollment SET enrollmentDate = ? WHERE trainee_id = ?");
+            PreparedStatement pstst = conn.prepareStatement("UPDATE enrollment SET enrollment_date = ? WHERE trainee_id = ?");
 
             pstst.setDate(1, enrollmentDate);
             pstst.setInt(2, trainee_id);

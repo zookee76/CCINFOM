@@ -236,6 +236,89 @@ public class trainees
         }
     }
     
+    public int searchTraineeProgram(String training_program)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM trainee WHERE training_program = ?");
+            pstmt.setString(1, training_program);
+            ResultSet rst = pstmt.executeQuery();
+            traineeList.clear();
+
+            while (rst.next()) 
+            {
+                    trainees trainee = new trainees();
+                    trainee.setTraineeId(rst.getInt("trainee_id"));
+                    trainee.setLastName(rst.getString("last_name"));
+                    trainee.setFirstName(rst.getString("first_name"));
+                    trainee.setMiddleInitialName(rst.getString("middle_initial_name"));
+                    trainee.setAge(rst.getInt("age"));
+                    trainee.setContact(rst.getLong("contact"));
+                    trainee.setTrainingProgramName(rst.getString("training_program"));
+                    trainee.setSectionId(rst.getInt("section_id"));
+
+                    traineeList.add(trainee);
+            }
+
+            pstmt.close();
+            conn.close();
+            return 1;
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
+    
+    public int searchTraineeSection(int section_id)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM trainee WHERE section_id = ?");
+            pstmt.setInt(1, section_id);
+            ResultSet rst = pstmt.executeQuery();
+            traineeList.clear();
+
+            while (rst.next()) 
+            {
+                    trainees trainee = new trainees();
+                    trainee.setTraineeId(rst.getInt("trainee_id"));
+                    trainee.setLastName(rst.getString("last_name"));
+                    trainee.setFirstName(rst.getString("first_name"));
+                    trainee.setMiddleInitialName(rst.getString("middle_initial_name"));
+                    trainee.setAge(rst.getInt("age"));
+                    trainee.setContact(rst.getLong("contact"));
+                    trainee.setTrainingProgramName(rst.getString("training_program"));
+                    trainee.setSectionId(rst.getInt("section_id"));
+
+                    traineeList.add(trainee);
+            }
+
+            pstmt.close();
+            conn.close();
+            return 1;
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
     public void listTrainees()
     {
         try
@@ -393,6 +476,5 @@ public class trainees
             System.out.println(A.trainee_idList.get(i));
         }
         
-        A.searchTraineeID(219812);
     }
 }
