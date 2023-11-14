@@ -10,7 +10,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Search and View Trainees</title>
+        <title>Search and View Trainees By ID Number</title>
     </head>
     <body>
         <jsp:useBean id="A" class="enrollmentmgt.trainees" scope="session"/>
@@ -19,13 +19,27 @@
             <input type="submit" value="Search">
         </form>
 
-        <form action="trainees.jsp?action=searchByProgram" method="post">
-            Search by Training Program: <input type="text" id="training_program_name" name="training_program_name" required>
+        <form action="searchbyprogram_trainee.jsp" method="post">
+            Training Program:
+               <select id="training_program_name" name="training_program_name">
+                    <option value="japanese_cuisine">Japanese Cuisine</option>
+                    <option value="greek_cuisine">Greek Cuisine</option>
+                    <option value="italian_cuisine">Italian Cuisine</option>
+                    <option value="filipino_cuisine">Filipino Cuisine</option>
+                    <option value="french_cuisine">French Cuisine</option>
+               </select><br>
             <input type="submit" value="Search">
         </form>
 
-        <form action="trainees.jsp?action=searchBySection" method="post">
-            Search by Section ID: <input type="text" id="section_id" name="section_id" required>
+        <form action="searchbySection_trainee.jsp" method="post">
+            Section ID:
+            <select id="section_id" name="section_id">
+                <option value="0">Section 0</option>
+                <option value="10">Section 10</option>
+                <option value="20">Section 20</option>
+                <option value="30">Section 30</option>
+                <option value="40">Section 40</option>
+            </select>
             <input type="submit" value="Search">
         </form>
     </body>
