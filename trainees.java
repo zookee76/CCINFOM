@@ -210,7 +210,7 @@ public class trainees
                         trainee.setMiddleInitialName(rst.getString("middle_initial_name"));
                         trainee.setAge(rst.getInt("age"));
                         trainee.setContact(rst.getLong("contact"));
-                        trainee.setTrainingProgramName(rst.getString("training_program_name"));
+                        trainee.setTrainingProgramName(rst.getString("training_program"));
                         trainee.setSectionId(rst.getInt("section_id"));
 
                         traineeList.add(trainee);
@@ -392,5 +392,7 @@ public class trainees
         {
             System.out.println(A.trainee_idList.get(i));
         }
+        
+        A.searchTraineeID(219812);
     }
 }

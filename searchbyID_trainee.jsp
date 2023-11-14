@@ -20,8 +20,7 @@
                 
                 A.trainee_id = v_trainee_id;
                 
-                int status = A.searchTraineeID(A.trainee_id);
-                
+                int status = A.searchTraineeID(A.trainee_id); 
 
                 if (status == 1)
                 {

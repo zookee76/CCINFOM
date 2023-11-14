@@ -23,6 +23,7 @@ public class clearance
     public String training_program_name;
     public java.sql.Date clearanceDate;
     public int receipt_or_no;
+    receipt Receipt = new receipt();
     
     public clearance()
     {
@@ -82,12 +83,23 @@ public class clearance
             if (paymentstatus.equals("paid"))
             {
                 clearanceDate = new java.sql.Date(System.currentTimeMillis());
+                Receipt.addReceipt(trainee_id);
+                
+                PreparedStatement pstst = conn.prepareStatement("SELECT MAX(or_no) AS orNum FROM receipt;");
+                ResultSet rst = pstst.executeQuery();
+            
+                while (rst.next())
+                {
+                    receipt_or_no = rst.getInt("orNum");
+                }
 
-                PreparedStatement pstst = conn.prepareStatement("UPDATE clearance_report SET clearance_status = ?, clearance_date = ? WHERE trainee_id = ?");
+                pstst = conn.prepareStatement("UPDATE clearance_report SET clearance_status = ?, clearance_date = ?,  receipt_or_no = ? WHERE trainee_id = ?");
 
                 pstst.setString(1, paymentstatus);
                 pstst.setDate(2, clearanceDate);
-                pstst.setInt(3, trainee_id);
+                pstst.setInt(3, receipt_or_no);
+                pstst.setInt(4, trainee_id);
+                
 
                 pstst.executeUpdate();
                 pstst.close();
@@ -125,14 +137,25 @@ public class clearance
             Connection conn;
             conn = DriverManager.getConnection(URL, USERNAME, PASS);
             System.out.println("Connection Successful!");
+            int or_no = -1;
+            PreparedStatement pstst = conn.prepareStatement("SELECT cr.receipt_or_no AS orNum FROM clearance_report cr JOIN receipt r ON cr.receipt_or_no = r.or_no WHERE trainee_id = ?;");
+            pstst.setInt(1, trainee_id);
+            ResultSet rst = pstst.executeQuery();
             
-            PreparedStatement pstst = conn.prepareStatement("DELETE FROM clearance_report WHERE trainee_id = ?");
+            while (rst.next())
+            {
+                or_no = rst.getInt("orNum");
+            }
+            
+            pstst = conn.prepareStatement("DELETE FROM clearance_report WHERE trainee_id = ?");
 
             pstst.setInt(1, trainee_id);
 
             pstst.executeUpdate();
             pstst.close();
             conn.close();
+            
+            Receipt.deleteReceipt(trainee_id, or_no);
                 
             return 1;
         }
@@ -148,6 +171,6 @@ public class clearance
     public static void main (String args[])
     {
         clearance C = new clearance();
-        C.modClearance(234679, "paid");
+        C.deleteClearance(234679);
     }
 }
