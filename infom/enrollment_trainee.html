@@ -12,6 +12,7 @@ and open the template in the editor.
     </head>
     <body>
         <form action ="enrollment_processing.jsp" method="post">
+            <jsp:useBean id="B" class="enrollmentmgt.trainingprogram" scope="session"/>
             Last Name: <input type="text" id="last_name" name="last_name"><br>
             First Name: <input type="text" id="first_name" name="first_name"><br>
             Middle Initial Name: <input type="text" id="middle_initial_name" name="middle_initial_name"><br>

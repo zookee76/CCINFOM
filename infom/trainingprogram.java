@@ -24,6 +24,8 @@ public class trainingprogram
     public String USERNAME = "root";
     public String PASS = "12345678";
     section Section = new section();
+    public ArrayList<trainingprogram> training_programs = new ArrayList<>();
+    public ArrayList<String> program_names = new ArrayList<>();
     
     public trainingprogram()
     {
@@ -194,6 +196,135 @@ public class trainingprogram
             System.out.println(e.getMessage());
             return 0;
         }
+    }
+
+    public void listTrainingPrograms()
+    {
+        try
+        {
+            Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM training_program");
+            ResultSet rst = pstmt.executeQuery();
+            training_programs.clear();
+            
+            while (rst.next())
+            {
+                trainingprogram training_program = new trainingprogram();
+                training_program.setProgramName(rst.getString("program_name"));
+                training_program.setStart(rst.getDate("start_date"));
+                training_program.setEnd(rst.getDate("end_date"));
+                training_program.setCost(rst.getInt("cost"));
+                training_program.setVenue(rst.getString("venue"));
+                training_program.setLimit(rst.getInt("class_limit"));
+
+                training_programs.add(training_program);
+            }
+            
+            pstmt.close();
+            conn.close();
+        }
+
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void listProgramNames()
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT program_name FROM training_program");
+            ResultSet rst = pstmt.executeQuery();
+            program_names.clear();
+            
+            while (rst.next())
+            {
+                program_name = rst.getString("program_name");
+                program_names.add(program_name);
+            }
+            
+            pstmt.close();
+            conn.close();
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public String getProgramName()
+    {
+        return program_name;
+    }
+
+    public void setProgramName(String program_name)
+    {
+        this.program_name = program_name;
+    }
+
+    public java.sql.Date getStartDate()
+    {
+        return start_date;
+    }
+    
+    public void setStart(java.sql.Date start_date)
+    {
+        this.start_date = start_date;
+    }
+
+    public java.sql.Date getEndDate()
+    {
+        return end_date;
+    }
+
+    public void setEnd(java.sql.Date end_date)
+    {
+        this.end_date = end_date;
+    }
+
+    public float getCost()
+    {
+        return cost;
+    }
+
+    public void setCost(float cost)
+    {
+        this.cost = cost;
+    }
+
+    public String getVenue()
+    {
+        return venue;
+    }
+    
+    public void setVenue(String venue)
+    {
+        this.venue = venue;
+    }
+
+    public int getLimit()
+    {
+        return class_limit;
+    }
+
+    public void setLimit(int class_limit)
+    {
+        this.class_limit = class_limit;
+    }
+
+    public List<trainingprogram> getTrainingprograms()
+    {
+        return training_programs;
     }
     
     public static void main (String args[])
