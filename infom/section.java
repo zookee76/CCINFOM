@@ -13,13 +13,46 @@ import java.sql.*;
  */
 public class section 
 {
+    public int section_id;
+    public String training_program;
+    public ArrayList<Integer> section_idList = new ArrayList<>();
     
     public section()
     {
         
     }
+
+    public void listSections()
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT section_id FROM sections");
+            ResultSet rst = pstmt.executeQuery();
+            program_names.clear();
+            
+            while (rst.next())
+            {
+                section_id = rst.getInt("section_id");
+                section_dList.add(section_id);
+            }
+            
+            pstmt.close();
+            conn.close();
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
     
-    public int getCurrentTraineesInSection(Connection conn, int section_id, String training_program_name) {
+    public int getCurrentTraineesInSection(Connection conn, int section_id, String training_program_name) 
+    {
     String countcurrQuery = "SELECT COUNT(*) AS cntTrainees FROM trainee WHERE section_id = " + section_id + ";";
     
     try 
