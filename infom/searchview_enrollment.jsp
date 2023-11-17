@@ -22,11 +22,15 @@
         <form action="searchbyprogram_trainee.jsp" method="post">
             Training Program:
                <select id="training_program_name" name="training_program_name">
-                    <option value="japanese_cuisine">Japanese Cuisine</option>
-                    <option value="greek_cuisine">Greek Cuisine</option>
-                    <option value="italian_cuisine">Italian Cuisine</option>
-                    <option value="filipino_cuisine">Filipino Cuisine</option>
-                    <option value="french_cuisine">French Cuisine</option>
+                    <%
+                        B.listTrainingPrograms();
+                        for (int i = 0; i < B.training_programs.size(); i++)
+                        {
+                    %>
+                        <option value="<%=B.program_names.get(i)%>"><%= B.program_names.get(i)%></option>
+                    <%
+                        }
+                    %>
                </select><br>
             <input type="submit" value="Search">
         </form>
