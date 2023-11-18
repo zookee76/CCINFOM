@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date(Quarter) Filter</title>
+</head>
+<body>
+    <h1>Generate Quarterly Report - Date(Quarter)</h1>
+
+    <form action="filtered_quarter.jsp" method="post">
+        <!-- Hidden input to specify the filter type -->
+        <input type="hidden" name="filterType" value="quarter">
+
+        <label for="filterValue">Select Quarter:</label>
+        <select id="filterValue" name="filterValue" required>
+            <option value="1">Jan-Mar</option>
+            <option value="2">Apr-Jun</option>
+            <option value="3">Jul-Sep</option>
+            <option value="4">Oct-Dec</option>
+        </select><br>
+
+        <br><button type="submit">Generate Report</button>
+    </form>
+        <br><button onclick="goBack()">Back</button>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

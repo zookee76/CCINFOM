@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Status Filter</title>
+</head>
+<body>
+    <h1>Generate Quarterly Report - Payment Status</h1>
+
+    <form action="filtered_paymentStatus.jsp" method="post">
+        <!-- Hidden input to specify the filter type -->
+        <input type="hidden" name="filterType" value="paymentStatus">
+
+        <label for="filterValue">Payment Status:</label>
+        <select id="filterValue" name="filterValue" required>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+        </select><br>
+
+        <br><button type="submit">Generate Report</button>
+    </form>
+        <br><button onclick="goBack()">Back</button>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
