@@ -37,7 +37,7 @@ public class section
             while (rst.next())
             {
                 section_id = rst.getInt("section_id");
-                section_dList.add(section_id);
+                section_idList.add(section_id);
             }
             
             pstmt.close();
