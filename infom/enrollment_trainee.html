@@ -22,8 +22,8 @@ and open the template in the editor.
             Training Program:
                <select id="training_program_name" name="training_program_name">
                     <%
-                        B.listTrainingPrograms();
-                        for (int i = 0; i < B.training_programs.size(); i++)
+                        B.listProgramNames();
+                        for (int i = 0; i < B.program_names.size(); i++)
                         {
                     %>
                         <option value="<%=B.program_names.get(i)%>"><%= B.program_names.get(i)%></option>
