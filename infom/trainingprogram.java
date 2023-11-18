@@ -331,12 +331,17 @@ public class trainingprogram
     {
         trainingprogram D = new trainingprogram();
         
-        String startDate = "2023-11-05";
-        String endDate = "2023-12-31";
+        String startDate = "2023-11-07";
+        String endDate = "2023-12-29";
 
         java.sql.Date newStartDate = java.sql.Date.valueOf(startDate);
         java.sql.Date newEndDate = java.sql.Date.valueOf(endDate);
         
-        D.modifyTrainingProgram("french_cuisine", newStartDate, newEndDate, 69000, "G403B", 69);
+        D.listProgramNames();
+        
+        for (int i = 0; i < D.program_names.size(); i++) 
+        {
+            System.out.println(D.program_names.get(i));
+        }
     }
 }

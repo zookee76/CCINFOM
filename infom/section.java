@@ -6,6 +6,7 @@
 package enrollmentmgt;
 
 import java.sql.*;
+import java.util.*;
 
 /**
  *
@@ -15,13 +16,16 @@ public class section
 {
     public int section_id;
     public String training_program;
+    public String URL = "jdbc:mysql://localhost:3306/culinary_db";
+    public String USERNAME = "root";
+    public String PASS = "12345678";
     public ArrayList<Integer> section_idList = new ArrayList<>();
     
     public section()
     {
         
     }
-
+    
     public void listSections()
     {
         try
@@ -32,7 +36,7 @@ public class section
             
             PreparedStatement pstmt = conn.prepareStatement("SELECT section_id FROM sections");
             ResultSet rst = pstmt.executeQuery();
-            program_names.clear();
+            section_idList.clear();
             
             while (rst.next())
             {
@@ -53,30 +57,29 @@ public class section
     
     public int getCurrentTraineesInSection(Connection conn, int section_id, String training_program_name) 
     {
-    String countcurrQuery = "SELECT COUNT(*) AS cntTrainees FROM trainee WHERE section_id = " + section_id + ";";
-    
-    try 
-    {
-        PreparedStatement cntStatement = conn.prepareStatement(countcurrQuery);
-        ResultSet rstCNT = cntStatement.executeQuery();
-        
-        int cntTrainees = -1;
+        String countcurrQuery = "SELECT COUNT(*) AS cntTrainees FROM trainee WHERE section_id = " + section_id + ";";
 
-        while (rstCNT.next()) 
+        try 
         {
-            cntTrainees = rstCNT.getInt("cntTrainees");
+            PreparedStatement cntStatement = conn.prepareStatement(countcurrQuery);
+            ResultSet rstCNT = cntStatement.executeQuery();
+
+            int cntTrainees = -1;
+
+            while (rstCNT.next()) 
+            {
+                cntTrainees = rstCNT.getInt("cntTrainees");
+            }
+
+            return cntTrainees;
+        } 
+
+        catch (Exception e) 
+        {
+            System.out.println(e.getMessage());
+            return 0;
         }
-
-        return cntTrainees;
-    } 
-    
-    catch (Exception e) 
-    {
-        System.out.println(e.getMessage());
-        return 0;
     }
-}
-
     
     public int getMaxPerSection(Connection conn, int section_id, String training_program_name)
     {
@@ -101,7 +104,7 @@ public class section
             return 0;
         }
     }
-
+    
     public int addSection(String training_program)
     {
          try 
@@ -137,5 +140,11 @@ public class section
             System.out.println(e.getMessage());
             return 0;
         }
+    }
+    
+    public static void main (String args[])
+    {
+        section S = new section();
+        S.addSection("indian_cuisine");
     }
 }
