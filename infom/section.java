@@ -101,4 +101,41 @@ public class section
             return 0;
         }
     }
+
+    public int addSection(String training_program)
+    {
+         try 
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstst = conn.prepareStatement("SELECT MAX(section_id) + 1 AS newID FROM sections;");
+            ResultSet rst = pstst.executeQuery();
+            
+            while (rst.next())
+            {
+                section_id = rst.getInt("newID");
+            }
+            
+            pstst = conn.prepareStatement("INSERT INTO sections VALUE (?, ?)");
+
+            pstst.setInt(1, section_id);
+            pstst.setString(2, training_program);
+
+            pstst.executeUpdate();
+            pstst.close();
+            conn.close();
+            System.out.println("success");
+            
+            return 1;
+        } 
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
 }
