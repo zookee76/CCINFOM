@@ -198,14 +198,15 @@ public class trainingprogram
         }
     }
 
-    public void listTrainingPrograms()
+    public int listTrainingPrograms(String program_name)
     {
         try
         {
             Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
             System.out.println("Connection Successful!");
             
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM training_program");
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM training_program WHERE program_name = ?");
+            pstmt.setString(1, program_name);
             ResultSet rst = pstmt.executeQuery();
             training_programs.clear();
             
@@ -224,12 +225,14 @@ public class trainingprogram
             
             pstmt.close();
             conn.close();
+            return 1;
         }
 
         catch (Exception e) 
         {
             e.printStackTrace();
             System.out.println(e.getMessage());
+            return 0;
         }
     }
 
@@ -337,11 +340,6 @@ public class trainingprogram
         java.sql.Date newStartDate = java.sql.Date.valueOf(startDate);
         java.sql.Date newEndDate = java.sql.Date.valueOf(endDate);
         
-        D.listProgramNames();
-        
-        for (int i = 0; i < D.program_names.size(); i++) 
-        {
-            System.out.println(D.program_names.get(i));
-        }
+        D.listTrainingPrograms("greek_cuisine");
     }
 }
