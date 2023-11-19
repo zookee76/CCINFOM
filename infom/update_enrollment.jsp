@@ -13,7 +13,15 @@
     </head>
     <body>
         <form action ="update_enrollment_processing.jsp" method="post">
-            Trainee ID: <input type ="text" id="trainee_id" name="trainee_id"><br>
+            <jsp:useBean id="A" class="enrollmentmgt.trainees" scope="session"/>
+            Trainee ID:<select id="trainee_id" name ="trainee_id">
+            <%
+                A.listTrainees();
+                for (int i = 0; i < A.trainee_idList.size(); i++) {
+            %>
+            <option value="<%=A.trainee_idList.get(i)%>"><%= A.trainee_idList.get(i) %></option>
+            <% } %>
+            </select>
             Last Name: <input type="text" id="last_name" name="last_name"><br>
             First Name: <input type="text" id="first_name" name="first_name"><br>
             Middle Initial Name: <input type="text" id="middle_initial_name" name="middle_initial_name"><br>
