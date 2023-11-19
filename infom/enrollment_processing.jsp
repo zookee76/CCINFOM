@@ -15,6 +15,7 @@
     <body>
         <form action = "index.html">
             <jsp:useBean id="A" class="enrollmentmgt.trainees" scope="session"/>
+            <jsp:useBean id="B" class="enrollmentmgt.section" scope="session"/>
 
             <%  // Receive values from register_trainee.html
                 String v_last_name = request.getParameter("last_name");
@@ -66,9 +67,14 @@
                     section_id = 30;
                 }
 
-                else
+                else if (A.training_program_name.equals("italian_cuisine"))
                 {
                     section_id = 40;
+                }
+                
+                else
+                {
+                    section_id = B.putToSection(A.training_program_name);
                 }
 
                 int status = A.register_trainee(A.last_name, A.first_name, A.middle_initial_name, A.age, A.contact, A.training_program_name, section_id);

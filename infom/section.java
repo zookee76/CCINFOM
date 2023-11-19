@@ -107,7 +107,7 @@ public class section
     
     public int addSection(String training_program)
     {
-         try 
+        try 
         {
             Connection conn;
             conn = DriverManager.getConnection(URL, USERNAME, PASS);
@@ -142,9 +142,39 @@ public class section
         }
     }
     
+    public int putToSection(String training_program_name)
+    {
+        try 
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstst = conn.prepareStatement("SELECT section_id AS newID FROM sections WHERE training_program = ?;");
+            pstst.setString(1, training_program_name);
+            ResultSet rst = pstst.executeQuery();
+            
+            while (rst.next())
+            {
+                section_id = rst.getInt("newID");
+            }
+            
+            System.out.println("Section ID: " + section_id);
+            
+            return section_id;
+        } 
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
     public static void main (String args[])
     {
         section S = new section();
-        S.addSection("indian_cuisine");
+        S.putToSection("indian_cuisine");
     }
 }
