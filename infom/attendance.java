@@ -29,6 +29,7 @@ public class attendance
     public int[] trainee_ids;
     trainees trainee = new trainees();
     public ArrayList<Integer> attendance_idList = new ArrayList<>();
+    public ArrayList<attendance> attendance_List = new ArrayList<>();
     
     public attendance()
     {
@@ -307,6 +308,82 @@ public class attendance
         }
     }
     
+    public int searchAttendanceReportID(int attendance_report_id)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM attendance WHERE attendance_report_id = ?");
+            pstmt.setInt(1, attendance_report_id);
+            ResultSet rst = pstmt.executeQuery();
+            attendance_List.clear();
+
+            while (rst.next()) 
+            {
+                    attendance attendance = new attendance();
+                    attendance.setAttendanceReportId(rst.getInt("attendance_report_id"));
+                    attendance.setAttendanceDate(rst.getDate("attendance_date"));
+                    attendance.setMentorId(rst.getInt("mentor_id"));
+                    attendance.setPresentMentor(rst.getBoolean("present_mentor"));
+                    attendance.setTrainingProgram(rst.getString("training_program"));
+                    attendance.setSectionId(rst.getInt("section_id"));
+                    attendance_List.add(attendance);
+            }
+
+            pstmt.close();
+            conn.close();
+            return 1;
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
+    public int searchAttendanceReportProgram(String training_program)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM attendance WHERE training_program = ?");
+            pstmt.setString(1, training_program);
+            ResultSet rst = pstmt.executeQuery();
+            attendance_List.clear();
+
+            while (rst.next()) 
+            {
+                    attendance attendance = new attendance();
+                    attendance.setAttendanceReportId(rst.getInt("attendance_report_id"));
+                    attendance.setAttendanceDate(rst.getDate("attendance_date"));
+                    attendance.setMentorId(rst.getInt("mentor_id"));
+                    attendance.setPresentMentor(rst.getBoolean("present_mentor"));
+                    attendance.setTrainingProgram(rst.getString("training_program"));
+                    attendance.setSectionId(rst.getInt("section_id"));
+                    attendance_List.add(attendance);
+            }
+
+            pstmt.close();
+            conn.close();
+            return 1;
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
     public int getAttendanceReportId() 
     {
         return attendance_report_id;
@@ -377,6 +454,11 @@ public class attendance
         this.section_id = section_id;
     }
     
+    public List<attendance> getAttendanceList() 
+    {
+        return attendance_List;
+    }
+    
     public static void main (String args[])
     {
        attendance R = new attendance();
@@ -385,6 +467,6 @@ public class attendance
        java.sql.Date newStartDate = java.sql.Date.valueOf(startDate);
        int[] trainee_ids = {231967, 219812};
 
-       R.logAttendance(newStartDate, 99901, true, "french_cuisine", trainee_ids);
+       R.searchAttendanceReportProgram("greek_cuisine");
     }
 }
