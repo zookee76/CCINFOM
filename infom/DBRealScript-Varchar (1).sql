@@ -36,28 +36,6 @@ class_limit INT NOT NULL
 );
 
 --
--- Table attendance
---
-
-DROP TABLE IF EXISTS attendance;
-CREATE TABLE IF NOT EXISTS attendance
-(
-attendance_report_id INT PRIMARY KEY NOT NULL,
-attendance_date DATE NOT NULL,
-mentor_id INT NOT NULL,
-present_mentor TINYINT(1) NULL,
-training_program VARCHAR(45) NULL,
-INDEX `ind_attendance_training_program` (training_program),
-INDEX `ind_attendance_mentor` (mentor_id),
-CONSTRAINT `fk_attendance_training_program` 
-FOREIGN KEY(training_program)
-REFERENCES culinary_db.training_program(program_name),
-CONSTRAINT `fk_attendance_mentor` 
-FOREIGN KEY(mentor_id)
-REFERENCES culinary_db.mentor(mentor_id)
-);
-
---
 -- Table sections
 --
 
@@ -70,6 +48,33 @@ INDEX `ind_sections_training_program` (training_program),
 CONSTRAINT `fk_sections_training_program` 
 FOREIGN KEY(training_program)
 REFERENCES culinary_db.training_program(program_name)
+);
+
+--
+-- Table attendance
+--
+
+DROP TABLE IF EXISTS attendance;
+CREATE TABLE IF NOT EXISTS attendance
+(
+attendance_report_id INT PRIMARY KEY NOT NULL,
+attendance_date DATE NOT NULL,
+mentor_id INT NOT NULL,
+present_mentor TINYINT(1) NULL,
+training_program VARCHAR(45) NULL,
+section_id INT NOT NULL,
+INDEX `ind_attendance_section_id` (section_id),
+INDEX `ind_attendance_training_program` (training_program),
+INDEX `ind_attendance_mentor` (mentor_id),
+CONSTRAINT `fk_attendance_training_program` 
+FOREIGN KEY(training_program)
+REFERENCES culinary_db.training_program(program_name),
+CONSTRAINT `fk_attendance_mentor` 
+FOREIGN KEY(mentor_id)
+REFERENCES culinary_db.mentor(mentor_id),
+CONSTRAINT `fk_attendance_section_id`
+FOREIGN KEY (section_id)
+REFERENCES	culinary_db.sections (section_id)
 );
 
 --
@@ -241,18 +246,13 @@ DROP TABLE IF EXISTS trainees_present;
 CREATE TABLE IF NOT EXISTS trainees_present
 (
 attendance_report_id INT NOT NULL,
-section_id INT NOT NULL,
 trainee_id INT NOT NULL,
-PRIMARY KEY (attendance_report_id,section_id,trainee_id),
+PRIMARY KEY (attendance_report_id,trainee_id),
 INDEX `ind_trainees_present_attendance_report_id` (attendance_report_id),
-INDEX `ind_trainees_present_section_id` (section_id),
 INDEX `ind_trainees_present_trainee_id` (trainee_id),
 CONSTRAINT `fk_trainees_present_attendance_report_id`
 FOREIGN KEY (attendance_report_id)
 REFERENCES	culinary_db.attendance (attendance_report_id),
-CONSTRAINT `fk_trainees_present_section_id`
-FOREIGN KEY (section_id)
-REFERENCES	culinary_db.sections (section_id),
 CONSTRAINT `fk_trainees_present_trainee_id`
 FOREIGN KEY (trainee_id)
 REFERENCES	culinary_db.trainee (trainee_id)
@@ -296,15 +296,6 @@ VALUES
     ('filipino_cuisine', '2023-07-04', '2023-09-15', 78000.00, 'AS602', 40), -- tues and fri
     ('italian_cuisine', '2023-10-04', '2023-12-24', 83000.00, 'EU407', 25); -- wed programs end on sat
 
--- attendance
-INSERT INTO attendance (attendance_report_id, attendance_date, mentor_id, present_mentor, training_program)
-VALUES
-	(2301,'2023-04-25', 99902, 1, 'japanese_cuisine'), -- Tuesday
-    (2302,'2023-07-25', 99904, 1, 'filipino_cuisine'), -- Tuesday
-    (2303,'2023-02-16', 99903, 1, 'greek_cuisine'), -- Thursday
-    (2304,'2023-10-16', 99901, 1, 'french_cuisine'), -- Monday
-    (2305,'2023-11-15', 99905, 1, 'italian_cuisine'); -- Wednesday
-
 -- sections
 INSERT INTO sections (section_id, training_program)
 VALUES
@@ -313,6 +304,15 @@ VALUES
     (20, 'greek_cuisine'),
     (30, 'filipino_cuisine'),
     (40, 'italian_cuisine');
+
+    -- attendance
+INSERT INTO attendance (attendance_report_id, attendance_date, mentor_id, present_mentor, training_program, section_id)
+VALUES
+	(2301,'2023-04-25', 99902, 1, 'japanese_cuisine', 10), -- Tuesday
+    (2302,'2023-07-25', 99904, 1, 'filipino_cuisine', 20), -- Tuesday
+    (2303,'2023-02-16', 99903, 1, 'greek_cuisine', 30), -- Thursday
+    (2304,'2023-10-16', 99901, 1, 'french_cuisine', 00), -- Monday
+    (2305,'2023-11-15', 99905, 1, 'italian_cuisine', 40); -- Wednesday
 
 -- trainee
 INSERT INTO trainee (trainee_id, last_name, first_name, middle_initial_name, age, contact, training_program, section_id)
@@ -376,13 +376,13 @@ VALUES
     (254678, 'unpaid', 234678, 'italian_cuisine',  NULL, NULL);
 
 -- trainees_present
-INSERT INTO trainees_present (attendance_report_id, section_id, trainee_id)
+INSERT INTO trainees_present (attendance_report_id, trainee_id)
 VALUES
-	(2301,10,219812),
-    (2302,30,223692),
-    (2303,20,227279),
-    (2304,00,231967),
-    (2305,40,234678);
+	(2301,219812),
+    (2302,223692),
+    (2303,227279),
+    (2304,231967),
+    (2305,234678);
 
 -- mentor_trainingprograms 
 INSERT INTO mentor_trainingprograms (mentor_id, program_name)
