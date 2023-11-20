@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS trainee_assessment
     evaluation_date DATE NULL,
     trainee_id INT NOT NULL,
     mentor_id INT NOT NULL,
-    evaluation_score ENUM('0.0', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0') NULL,
+    evaluation_score ENUM('0.0', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0') NOT NULL,
     explanation VARCHAR(500) NULL,
     training_program VARCHAR(45) NULL,
     INDEX `ind_trainee_assessment_mentor_id` (mentor_id),
@@ -356,9 +356,7 @@ INSERT INTO trainee_assessment (assessment_id, evaluation_date, trainee_id, ment
 VALUES
 	(12,'2023-06-24', 219812, 99902, '2.0', 'Could use more practice with precise knife cuts, there are numerous wasted parts of fish because of imprecise cuts', 'japanese_cuisine'),
     (252,'2023-09-16', 223692, 99904, '3.5', 'Exemplary in cooking traditional dishes like adobo and sinigang. Makes use of various spices to enhance dish flavors', 'filipino_cuisine'),
-    (702,'2023-03-24', 227279, 99903, '2.5', 'Is able to maximize flavor with minimal ingredients like for shakshuka, thought often adds too much oil to dishes', 'greek_cuisine'),
-    (905,NULL, 231967, 99901, NULL, NULL, 'french_cuisine'),
-    (1210,NULL, 234678, 99905, NULL, NULL, 'italian_cuisine');
+    (702,'2023-03-24', 227279, 99903, '2.5', 'Is able to maximize flavor with minimal ingredients like for shakshuka, thought often adds too much oil to dishes', 'greek_cuisine');
 
 -- receipt
 INSERT INTO receipt(or_no, transaction_date, total_amount)
