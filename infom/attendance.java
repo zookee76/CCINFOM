@@ -26,43 +26,68 @@ public class attendance
     public String training_program;
     public int section_id;
     public ArrayList<trainees> traineeList = new ArrayList<>();
+    public int[] trainee_ids;
+    trainees trainee = new trainees();
+    public ArrayList<Integer> attendance_idList = new ArrayList<>();
     
     public attendance()
     {
         
     }
     
-    public int logAttendance(java.sql.Date attendance_date, int mentor_id, boolean present_mentor, String training_program, int[] trainee_id)
+    public int logAttendance(java.sql.Date attendance_date, int mentor_id, boolean present_mentor, String training_program, int[] trainee_ids)
     {
+        boolean sameSection;
+        
         try 
         {
-            Connection conn;
-            conn = DriverManager.getConnection(URL, USERNAME, PASS);
-            System.out.println("Connection Successful!");
+            sameSection = areTraineesInSameSection(trainee_ids, training_program);
             
-            PreparedStatement pstst = conn.prepareStatement("SELECT MAX(attendance_report_id) + 1 AS newID FROM attendance;");
-            ResultSet rst = pstst.executeQuery();
-            
-            while (rst.next())
+            if (sameSection == true)
             {
-                attendance_report_id = rst.getInt("newID");
+                Connection conn;
+                conn = DriverManager.getConnection(URL, USERNAME, PASS);
+                System.out.println("Connection Successful!");
+
+                PreparedStatement pstst = conn.prepareStatement("SELECT MAX(attendance_report_id) + 1 AS newID FROM attendance;");
+                ResultSet rst = pstst.executeQuery();
+
+                while (rst.next())
+                {
+                    attendance_report_id = rst.getInt("newID");
+                }
+
+                pstst = conn.prepareStatement("INSERT INTO attendance VALUE (?, ?, ?, ?, ?, ?)");
+
+                pstst.setInt(1, attendance_report_id);
+                pstst.setDate(2, attendance_date);
+                pstst.setInt(3, mentor_id);
+                pstst.setBoolean(4, present_mentor);
+                pstst.setString(5, training_program);
+                pstst.setInt(6, section_id);
+
+                pstst.executeUpdate();
+                pstst.close();
+
+                for (int i = 0; i < trainee_ids.length; i++)
+                {    
+                    pstst = conn.prepareStatement("INSERT INTO trainees_present VALUE (?, ?)");
+                    pstst.setInt(1, attendance_report_id);
+                    pstst.setInt(2, trainee_ids[i]);
+                    pstst.executeUpdate();
+                    pstst.close();
+                }
+
+                conn.close();
+                System.out.println("success");
+
+                return 1;
             }
             
-            pstst = conn.prepareStatement("INSERT INTO attendance VALUE (?, ?, ?, ?, ?, ?)");
-
-            pstst.setInt(1, attendance_report_id);
-            pstst.setDate(2, attendance_date);
-            pstst.setInt(3, mentor_id);
-            pstst.setBoolean(4, present_mentor);
-            pstst.setString(5, training_program);
-            pstst.setInt(6, section_id);
-            
-            pstst.executeUpdate();
-            pstst.close();
-            conn.close();
-            System.out.println("success");
-            
-            return 1;
+            else
+            {
+                return 0;
+            }
         } 
         
         catch (Exception e) 
@@ -71,38 +96,57 @@ public class attendance
             System.out.println(e.getMessage());
             return 0;
         }
+        
     }
     
-    public int logTrainees(int attendance_report_id, int trainee_id)
+    public int modifyAttendance(int attendance_report_id, java.sql.Date attendance_date, int mentor_id, boolean present_mentor, String training_program, int[] trainee_ids)
     {
+        boolean sameSection;
+        
         try 
         {
-            Connection conn;
-            conn = DriverManager.getConnection(URL, USERNAME, PASS);
-            System.out.println("Connection Successful!");
+            sameSection = areTraineesInSameSection(trainee_ids, training_program);
             
-            PreparedStatement pstst = conn.prepareStatement("");
-            ResultSet rst = pstst.executeQuery();
-            
-           
-            
-            
-            pstst = conn.prepareStatement("INSERT INTO trainees_present VALUE (?, ?)");
+            if (sameSection == true)
+            {
+                Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
+                System.out.println("Connection Successful!");
 
-            pstst.setInt(1, attendance_report_id);
-            pstst.setInt(2, trainee_id);
+                PreparedStatement pstst = conn.prepareStatement("UPDATE attendance SET attendance_date = ?, mentor_id = ?, present_mentor = ?, training_program = ? WHERE attendance_report_id = ?");
+                pstst.setDate(1, attendance_date);
+                pstst.setInt(2, mentor_id);
+                pstst.setBoolean(3, present_mentor);
+                pstst.setString(4, training_program);
+                pstst.setInt(5, attendance_report_id);
+                pstst.executeUpdate();
+                pstst.close();
+                
+                pstst = conn.prepareStatement("DELETE FROM trainees_present WHERE attendance_report_id = ?");
+                pstst.executeUpdate();
+                pstst.close();
+                
+                for (int i = 0; i < trainee_ids.length; i++)
+                {    
+                    pstst = conn.prepareStatement("INSERT INTO trainees_present VALUE (?, ?)");
+                    pstst.setInt(1, attendance_report_id);
+                    pstst.setInt(2, trainee_ids[i]);
+                    pstst.executeUpdate();
+                    pstst.close();
+                }
+
+                pstst.close();
+                conn.close();
+
+                return 1;
+            }
             
-            pstst.executeUpdate();
-            pstst.close();
-            
-            
-            conn.close();
-            System.out.println("success");
-            
-            return 1;
+            else
+            {
+                return 0;
+            }
         } 
         
-        catch (Exception e) 
+        catch (SQLException e) 
         {
             e.printStackTrace();
             System.out.println(e.getMessage());
@@ -110,25 +154,91 @@ public class attendance
         }
     }
     
-    public int modifyAttendance(int attendance_report_id)
+    public boolean areTraineesInSameSection(int[] trainee_ids, String training_proram) 
     {
+        if (trainee_ids == null || trainee_ids.length == 0) 
+        {
+            return false;
+        }
+
+        int firstTraineeSectionId = getSectionId(trainee_ids[0]);
+
+        for (int i = 1; i < trainee_ids.length; i++) 
+        {
+            int currentTraineeSectionId = getSectionId(trainee_ids[i]);
+            
+            if (firstTraineeSectionId != currentTraineeSectionId)
+            {
+                return false;
+            }
+        }
+        
+        for (int i = 1; i < trainee_ids.length; i++) 
+        {
+            String currentTraineeProgram = getProgram(trainee_ids[i]);
+            
+            if (!training_program.equals(currentTraineeProgram))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    public String getProgram(int trainee_id) 
+    {
+        String trainee_program = null;
         try 
         {
             Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
             System.out.println("Connection Successful!");
 
-            PreparedStatement pstst = conn.prepareStatement("UPDATE attendance SET attendance_date = ?, mentor_id = ?, present_mentor = ?, training_program = ? WHERE attendance_report_id = ?");
-            pstst.setDate(1, attendance_date);
-            pstst.setInt(2, mentor_id);
-            pstst.setBoolean(3, present_mentor);
-            pstst.setString(4, training_program);
-            pstst.setInt(5, attendance_report_id);
-            pstst.executeUpdate();
-            
+            PreparedStatement pstst = conn.prepareStatement("SELECT training_program FROM trainee WHERE trainee_id = ?");
+            pstst.setInt(1, trainee_id);
+            ResultSet rst = pstst.executeQuery();
+
+            while (rst.next()) 
+            {
+                trainee_program = rst.getString("training_program");
+            }
+
             pstst.close();
             conn.close();
 
-            return 1;
+            return trainee_program;
+        } 
+        
+        catch (SQLException e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    
+    public int getSectionId(int trainee_id) 
+    {
+        int sectionID = 0;
+        try 
+        {
+            Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+
+            PreparedStatement pstst = conn.prepareStatement("SELECT s.section_id FROM sections s JOIN trainee t ON s.training_program = t.training_program WHERE trainee_id = ?");
+            pstst.setInt(1, trainee_id);
+            ResultSet rst = pstst.executeQuery();
+
+            while (rst.next()) 
+            {
+                sectionID = rst.getInt("section_id");
+            }
+
+            pstst.close();
+            conn.close();
+
+            return sectionID;
         } 
         
         catch (SQLException e) 
@@ -145,12 +255,16 @@ public class attendance
         {
             Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
             System.out.println("Connection Successful!");
-
-            PreparedStatement pstst = conn.prepareStatement("DELETE FROM attendance WHERE attendance_report_id = ?");
+            PreparedStatement pstst = conn.prepareStatement("DELETE FROM trainees_present WHERE attendance_report_id = ?");
             pstst.setInt(1, attendance_report_id);
             pstst.executeUpdate();
-            
             pstst.close();
+            
+            pstst = conn.prepareStatement("DELETE FROM attendance WHERE attendance_report_id = ?");
+            pstst.setInt(1, attendance_report_id);
+            pstst.executeUpdate();
+            pstst.close();
+            
             conn.close();
 
             return 1;
@@ -164,13 +278,113 @@ public class attendance
         }
     }
     
+    public void listAttendance()
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT attendance_report_id FROM attendance");
+            ResultSet rst = pstmt.executeQuery();
+            attendance_idList.clear();
+            
+            while (rst.next())
+            {
+                attendance_report_id = rst.getInt("attendance_report_id");
+                attendance_idList.add(attendance_report_id);
+            }
+            
+            pstmt.close();
+            conn.close();
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public int getAttendanceReportId() 
+    {
+        return attendance_report_id;
+    }
+
+    public void setAttendanceReportId(int attendance_report_id) 
+    {
+        this.attendance_report_id = attendance_report_id;
+    }
+
+    public java.sql.Date getAttendanceDate() 
+    {
+        return attendance_date;
+    }
+
+    public void setAttendanceDate(java.sql.Date attendance_date) 
+    {
+        this.attendance_date = attendance_date;
+    }
+
+    public int getTraineeId() 
+    {
+        return trainee_id;
+    }
+
+    public void setTraineeId(int trainee_id) 
+    {
+        this.trainee_id = trainee_id;
+    }
+
+    public int getMentorId() 
+    {
+        return mentor_id;
+    }
+
+    public void setMentorId(int mentor_id) 
+    {
+        this.mentor_id = mentor_id;
+    }
+
+    public boolean isPresentMentor() 
+    {
+        return present_mentor;
+    }
+
+    public void setPresentMentor(boolean present_mentor) 
+    {
+        this.present_mentor = present_mentor;
+    }
+
+    public String getTrainingProgram() 
+    {
+        return training_program;
+    }
+
+    public void setTrainingProgram(String training_program) 
+    {
+        this.training_program = training_program;
+    }
+
+    public int getSectionId() 
+    {
+        return section_id;
+    }
+
+    public void setSectionId(int section_id) 
+    {
+        this.section_id = section_id;
+    }
+    
     public static void main (String args[])
     {
        attendance R = new attendance();
        
-       String startDate = "2023-11-23";
+       String startDate = "2023-11-24";
        java.sql.Date newStartDate = java.sql.Date.valueOf(startDate);
+       int[] trainee_ids = {231967, 219812};
 
-       
+       R.logAttendance(newStartDate, 99901, true, "french_cuisine", trainee_ids);
     }
 }
