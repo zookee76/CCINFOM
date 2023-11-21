@@ -58,6 +58,18 @@ public class attendance
                 {
                     attendance_report_id = rst.getInt("newID");
                 }
+                
+                pstst = conn.prepareStatement("SELECT section_id FROM sections WHERE training_program = ?");
+                pstst.setString(1, training_program);
+                ResultSet rst_sectionID = pstst.executeQuery();
+                
+                while (rst_sectionID.next())
+                    
+                {
+                    section_id = rst_sectionID.getInt("section_id");
+                }
+                
+                pstst.close();
 
                 pstst = conn.prepareStatement("INSERT INTO attendance VALUE (?, ?, ?, ?, ?, ?)");
 
@@ -113,17 +125,31 @@ public class attendance
             {
                 Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
                 System.out.println("Connection Successful!");
+                
+                PreparedStatement pstst = conn.prepareStatement("SELECT section_id FROM sections WHERE training_program = ?");
+                pstst.setString(1, training_program);
+                ResultSet rst_sectionID = pstst.executeQuery();
+                
+                while (rst_sectionID.next())
+                    
+                {
+                    section_id = rst_sectionID.getInt("section_id");
+                }
+                
+                pstst.close();
 
-                PreparedStatement pstst = conn.prepareStatement("UPDATE attendance SET attendance_date = ?, mentor_id = ?, present_mentor = ?, training_program = ? WHERE attendance_report_id = ?");
+                pstst = conn.prepareStatement("UPDATE attendance SET attendance_date = ?, mentor_id = ?, present_mentor = ?, training_program = ?, section_id = ? WHERE attendance_report_id = ?");
                 pstst.setDate(1, attendance_date);
                 pstst.setInt(2, mentor_id);
                 pstst.setBoolean(3, present_mentor);
                 pstst.setString(4, training_program);
-                pstst.setInt(5, attendance_report_id);
+                pstst.setInt(5, section_id);
+                pstst.setInt(6, attendance_report_id);
                 pstst.executeUpdate();
                 pstst.close();
                 
                 pstst = conn.prepareStatement("DELETE FROM trainees_present WHERE attendance_report_id = ?");
+                
                 pstst.executeUpdate();
                 pstst.close();
                 
