@@ -30,6 +30,7 @@ public class attendance
     trainees trainee = new trainees();
     public ArrayList<Integer> attendance_idList = new ArrayList<>();
     public ArrayList<attendance> attendance_List = new ArrayList<>();
+    public ArrayList<Integer> trainees_presentList = new ArrayList<>();
     
     public attendance()
     {
@@ -346,6 +347,38 @@ public class attendance
         }
     }
     
+    public int searchTraineePresent(int attendance_report_id)
+    {
+        try
+        {
+            Connection conn;
+            conn = DriverManager.getConnection(URL, USERNAME, PASS);
+            System.out.println("Connection Successful!");
+            
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM trainees_present WHERE attendance_report_id = ?");
+            pstmt.setInt(1, attendance_report_id);
+            ResultSet rst = pstmt.executeQuery();
+            trainees_presentList.clear();
+
+            while (rst.next()) 
+            {
+                    int trainee_id = rst.getInt("trainee_id");
+                    trainees_presentList.add(trainee_id);
+            }
+
+            pstmt.close();
+            conn.close();
+            return 1;
+        }
+        
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return 0;
+        }
+    }
+    
     public int searchAttendanceReportProgram(String training_program)
     {
         try
@@ -457,6 +490,11 @@ public class attendance
     public List<attendance> getAttendanceList() 
     {
         return attendance_List;
+    }
+    
+    public List<Integer> getTraineeList()
+    {
+        return trainees_presentList;
     }
     
     public static void main (String args[])

@@ -44,6 +44,18 @@
                     <% } %>
             </select><br>
             <input type="submit" value="Search">
-        </form>            
+        </form>
+
+         <form action="searchtraineespresent_attendance.jsp" method="post">
+            Search Trainees Present By Attendance Report ID:<select id="attendance_report_id" name ="attendance_report_id">
+                    <%
+                        E.listAttendance();
+                        for (int i = 0; i < E.attendance_idList.size(); i++) {
+                    %>
+                    <option value="<%=E.attendance_idList.get(i)%>"><%= E.attendance_idList.get(i) %></option>
+                    <% } %>
+            </select><br>
+            <input type="submit" value="Search">
+        </form>   
     </body>
 </html>
