@@ -11,7 +11,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Searched Trainees by Program</title>
+        <title>Searched Trainees by Attendance Report ID</title>
     </head>
     <body>
         <form action = "index.html">
