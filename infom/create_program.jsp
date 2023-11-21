@@ -18,7 +18,13 @@
             End Date: <input type="date" id="end_date" name="end_date" pattern="\d{4}-\d{2}-\d{2}" title="Enter a date in the format yyyy-mm-dd"><br>
             Cost: <input type="number" id="cost" name="cost"><br>
             Venue: <input type="text" id="venue" name="venue"><br>
-            Class Limit: <input type="number" id="class_limit" name="class_limit"><br>               
+            Class Limit: <input type="number" id="class_limit" name="class_limit"><br>
+            Class Schedule:
+            <select id="class_schedule" name="class_schedule">
+                <option value="monday_thursday">Monday/Thursday</option>
+                <option value="tuesday_friday">Tuesday/Friday</option>
+                <option value="wednesday_saturday">Wednesday/Saturday</option>
+            </select><br>
             <input type="Submit" value="Submit">
         </form>
     </body>

@@ -20,6 +20,7 @@ public class trainingprogram
     public float cost;
     public String venue;
     public int class_limit;
+    public String program_schedule;
     public String URL = "jdbc:mysql://localhost:3306/culinary_db";
     public String USERNAME = "root";
     public String PASS = "12345678";
@@ -32,7 +33,7 @@ public class trainingprogram
         
     }
     
-    public int addTrainingProgram(String program_name, java.sql.Date start_date, java.sql.Date end_date, float cost, String venue, int class_limit)
+    public int addTrainingProgram(String program_name, java.sql.Date start_date, java.sql.Date end_date, float cost, String venue, int class_limit, String program_schedule)
     {
         try
         {
@@ -51,6 +52,53 @@ public class trainingprogram
 
             pstst.executeUpdate();
             pstst.close();
+            
+            
+            if (program_schedule.equals("monday_thursday"))
+            {
+                pstst = conn.prepareStatement("INSERT INTO program_schedule VALUES (?, ?, ?, ?, ?, ?, ?)");
+                pstst.setString(1, program_name);
+                pstst.setBoolean(2, true);
+                pstst.setBoolean(3, false);
+                pstst.setBoolean(4, false);
+                pstst.setBoolean(5, true);
+                pstst.setBoolean(6, false);
+                pstst.setBoolean(7, false);
+                
+                pstst.executeUpdate();
+                pstst.close();
+            }
+            
+            else if (program_schedule.equals("tuesday_friday"))
+            {
+                pstst = conn.prepareStatement("INSERT INTO program_schedule VALUES (?, ?, ?, ?, ?, ?, ?)");
+                pstst.setString(1, program_name);
+                pstst.setBoolean(2, false);
+                pstst.setBoolean(3, true);
+                pstst.setBoolean(4, false);
+                pstst.setBoolean(5, false);
+                pstst.setBoolean(6, true);
+                pstst.setBoolean(7, false);
+                
+                pstst.executeUpdate();
+                pstst.close();
+            }
+            
+            else
+            {
+                pstst = conn.prepareStatement("INSERT INTO program_schedule VALUES (?, ?, ?, ?, ?, ?, ?)");
+                pstst.setString(1, program_name);
+                pstst.setBoolean(2, false);
+                pstst.setBoolean(3, false);
+                pstst.setBoolean(4, true);
+                pstst.setBoolean(5, false);
+                pstst.setBoolean(6, false);
+                pstst.setBoolean(7, true);
+                
+                pstst.executeUpdate();
+                pstst.close();
+            }
+            
             conn.close();
             
             Section.addSection(program_name);
@@ -68,7 +116,7 @@ public class trainingprogram
         }
     }
     
-    public int modifyTrainingProgram(String program_name, java.sql.Date start_date, java.sql.Date end_date, float cost, String venue, int class_limit) 
+    public int modifyTrainingProgram(String program_name, java.sql.Date start_date, java.sql.Date end_date, float cost, String venue, int class_limit, String program_schedule) 
     {
         try 
         {
@@ -95,6 +143,51 @@ public class trainingprogram
             pstst.setString(2, program_name);
             pstst.executeUpdate();
             pstst.close();
+            
+            if (program_schedule.equals("monday_thursday"))
+            {
+                pstst = conn.prepareStatement("UPDATE program_schedule SET class_mon = ?, class_tue = ?, class_wed = ?, class_thu = ?, class_fri = ?, class_sat = ? WHERE training_program = ?");
+                pstst.setBoolean(1, true);
+                pstst.setBoolean(2, false);
+                pstst.setBoolean(3, false);
+                pstst.setBoolean(4, true);
+                pstst.setBoolean(5, false);
+                pstst.setBoolean(6, false);
+                pstst.setString(7, program_name);
+                
+                pstst.executeUpdate();
+                pstst.close();
+            }
+            
+            else if (program_schedule.equals("tuesday_friday"))
+            {
+                pstst = conn.prepareStatement("UPDATE program_schedule SET class_mon = ?, class_tue = ?, class_wed = ?, class_thu = ?, class_fri = ?, class_sat = ? WHERE training_program = ?");
+                pstst.setBoolean(1, false);
+                pstst.setBoolean(2, true);
+                pstst.setBoolean(3, false);
+                pstst.setBoolean(4, false);
+                pstst.setBoolean(5, true);
+                pstst.setBoolean(6, false);
+                pstst.setString(7, program_name);
+                
+                pstst.executeUpdate();
+                pstst.close();
+            }
+            
+            else
+            {
+                pstst = conn.prepareStatement("UPDATE program_schedule SET class_mon = ?, class_tue = ?, class_wed = ?, class_thu = ?, class_fri = ?, class_sat = ? WHERE training_program = ?");
+                pstst.setBoolean(1, false);
+                pstst.setBoolean(2, false);
+                pstst.setBoolean(3, true);
+                pstst.setBoolean(4, false);
+                pstst.setBoolean(5, false);
+                pstst.setBoolean(6, true);
+                pstst.setString(7, program_name);
+                
+                pstst.executeUpdate();
+                pstst.close();
+            }
 
             conn.close();
 
@@ -340,6 +433,6 @@ public class trainingprogram
         java.sql.Date newStartDate = java.sql.Date.valueOf(startDate);
         java.sql.Date newEndDate = java.sql.Date.valueOf(endDate);
         
-        D.listTrainingPrograms("greek_cuisine");
+        D.modifyTrainingProgram("indian_cuisine", newStartDate, newEndDate, 44000, "G304B", 32, "tuesday_friday");
     }
 }

@@ -23,6 +23,7 @@
                 int v_cost = Integer.parseInt(request.getParameter("cost"));
                 String v_venue = request.getParameter("venue");
                 int v_class_limit = Integer.parseInt(request.getParameter("class_limit"));
+                String v_program_schedule = request.getParameter("class_schedule");
                 
                 B.program_name = v_programName;
                 java.sql.Date va_startDate = java.sql.Date.valueOf(v_startDate);
@@ -32,9 +33,9 @@
                 B.cost = v_cost;
                 B.venue = v_venue;
                 B.class_limit = v_class_limit;
-
+                B.program_schedule = v_program_schedule;
                 
-                int status = B.modifyTrainingProgram(B.program_name, B.start_date, B.end_date, B.cost, B.venue, B.class_limit);
+                int status = B.modifyTrainingProgram(B.program_name, B.start_date, B.end_date, B.cost, B.venue, B.class_limit, B.program_schedule);
 
                 if (status == 1)
                 {
