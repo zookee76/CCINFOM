@@ -39,6 +39,7 @@
                         <p>Cost: <%= training_program.getCost() %></p>
                         <p>Venue: <%= training_program.getVenue() %></p>
                         <p>Class Limit: <%= training_program.getLimit() %></p>
+                        <p>Schedule: <%= training_program.getSchedule() %></p>
             <%
                     }
             %>

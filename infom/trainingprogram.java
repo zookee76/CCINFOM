@@ -293,10 +293,44 @@ public class trainingprogram
 
     public int listTrainingPrograms(String program_name)
     {
+        String program_schedule = null;
+        
         try
         {
             Connection conn = DriverManager.getConnection(URL, USERNAME, PASS);
             System.out.println("Connection Successful!");
+            
+            PreparedStatement pstst = conn.prepareStatement("SELECT * FROM program_schedule WHERE training_program = ?");
+            pstst.setString(1, program_name);
+            ResultSet resultSet = pstst.executeQuery();
+
+            while (resultSet.next()) 
+            {
+                String training_program = resultSet.getString("training_program");
+                boolean monday = resultSet.getBoolean("class_mon");
+                boolean tuesday = resultSet.getBoolean("class_tue");
+                boolean wednesday = resultSet.getBoolean("class_wed");
+                boolean thursday = resultSet.getBoolean("class_thu");
+                boolean friday = resultSet.getBoolean("class_fri");
+                boolean saturday = resultSet.getBoolean("class_sat");
+                
+                if (monday == true && thursday == true)
+                {
+                    program_schedule = "Monday/Thursday";
+                }
+                
+                else if (tuesday == true && friday == true)
+                {
+                    program_schedule = "Tuesday/Friday";
+                }
+                
+                else
+                {
+                    program_schedule = "Wednesday/Saturday";
+                }
+            }
+
+            pstst.close();
             
             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM training_program WHERE program_name = ?");
             pstmt.setString(1, program_name);
@@ -312,6 +346,7 @@ public class trainingprogram
                 training_program.setCost(rst.getInt("cost"));
                 training_program.setVenue(rst.getString("venue"));
                 training_program.setLimit(rst.getInt("class_limit"));
+                training_program.setSchedule(program_schedule);
 
                 training_programs.add(training_program);
             }
@@ -417,6 +452,16 @@ public class trainingprogram
     {
         this.class_limit = class_limit;
     }
+    
+    public String getSchedule()
+    {
+        return program_schedule;
+    }
+    
+    public void setSchedule(String program_schedule)
+    {
+        this.program_schedule = program_schedule;
+    }
 
     public List<trainingprogram> getTrainingprograms()
     {
@@ -433,6 +478,6 @@ public class trainingprogram
         java.sql.Date newStartDate = java.sql.Date.valueOf(startDate);
         java.sql.Date newEndDate = java.sql.Date.valueOf(endDate);
         
-        D.modifyTrainingProgram("indian_cuisine", newStartDate, newEndDate, 44000, "G304B", 32, "tuesday_friday");
+        D.listTrainingPrograms("indian_cuisine");
     }
 }
